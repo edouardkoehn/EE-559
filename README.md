@@ -1,10 +1,10 @@
-# project-template
-Template repostiory for accelerate your project
+# EE-559 Project
+Repository for the EE-559 project
 ## Installation
 - Clone the repo
 
 ```bash
-git clone https://github.com/edouardkoehn/WM_Atlas.git
+git clone git@github.com:edouardkoehn/EE-559.git
 ```
 - Create your virtual env
 ```bash
@@ -27,7 +27,7 @@ poetry env info
 ```bash
 poetry add numpy
 ```
-It would automatically install and udpate the pyproject.toml file. If you didn't specifie it, it would add it to the tool.poetry.dependencies.
+It would automatically install and udpate the pyproject.toml file. If you didn't specifiy it, it would add it to the tool.poetry.dependencies.
 
 - to add an dependancy with poetry to a specific group
 ```bash
