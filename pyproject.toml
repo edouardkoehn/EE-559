@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "EE_559"#name of your module
+name = "ee-559"#name of your module
 version = "0.0.1"#version of your module
 description = "EE-559 project"#description of your modeél
 authors = ["Edouard Koehn"]
@@ -7,11 +7,10 @@ license = "MIT License"
 
 # Main dependencies
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
-
+python = ">=3.12,<3.13"
+jupyter = "^1.0.0"
 
 # Dev dependencies
-jupyter = "^1.0.0"
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 black = "^21.12b0"

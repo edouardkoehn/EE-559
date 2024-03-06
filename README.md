@@ -9,7 +9,7 @@ git clone git@github.com:edouardkoehn/EE-559.git
 - Create your virtual env
 ```bash
 conda create -n wm python=3
-conda activate wm
+conda activate EE559
 ```
 - Install poetry
 ```bash
