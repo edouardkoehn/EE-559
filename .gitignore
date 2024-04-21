@@ -79,3 +79,9 @@ ipython_config.py
 
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
+
+# Remove the image dataset
+EE-559/MMHS150K/img*
+
+# Mac OS
+.DS_Store
