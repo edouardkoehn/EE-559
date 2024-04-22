@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ee-559"#name of your module
+name = "src"#name of your module
 version = "0.0.1"#version of your module
 description = "EE-559 project"#description of your modeél
 authors = ["Edouard Koehn"]
