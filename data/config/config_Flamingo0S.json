@@ -1,0 +1,8 @@
+{
+    "model_name": "Flamingo0s",
+    "language_model": "RedPajama-INCITE-Base-3B-v1",
+    "vision_model": "ViT-L-14",
+    "n_cros_attention":2,
+    "prompting": "<image>Describe this image.<|endofchunk|><image>An image of"
+
+}
