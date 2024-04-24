@@ -1,13 +1,15 @@
 #!/bin/bash -l
-#SBATCH --chdir /scratch/izar/koehn
+#SBATCH --chdir /home/koehn/EE-559
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 1
 #SBATCH --mem 4G
-#SBATCH --time 2:00
+#SBATCH --time 01:30:00
 #SBATCH --gres gpu:1
 #SBATCH --account ee-559
 #SBATCH --qos ee-559
-#SBATCH --reservation ee-559
+
 # The --reservation line only works during the class.
-conda activate dl
+conda activate EE559
+echo $CONDA_PREFIX
+echo "$PWD"
 python src/eval.py

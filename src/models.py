@@ -45,13 +45,13 @@ class Flamingo0S(nn.Module):
         """Method get the inferance from the model
         Args : x(dict): containing the keys:image, labels, tweet_text, img_text
         """
-        visual_input = [self.image_processor(x["image"])]
+        visual_input = [self.image_processor(x["image"]).unsqueeze(0)]
         visual_input = torch.cat(visual_input, dim=0)
         visual_input = visual_input.unsqueeze(1).unsqueeze(0)
 
-        text_input = [self.prompt_text]
+        text_input = [''.join([self.prompt_text, x["tweet_text"]])]
         text_input = self.tokenizer(text_input, return_tensors="pt")
-
+        print(text_input)
         generated_text = self.model.generate(
             vision_x=visual_input,
             lang_x=text_input["input_ids"],

@@ -3,6 +3,6 @@
     "language_model": "RedPajama-INCITE-Base-3B-v1",
     "vision_model": "ViT-L-14",
     "n_cros_attention":2,
-    "prompting": "<image>Describe this image.<|endofchunk|><image>An image of"
+    "prompting": "<image>Firstly, you explaine the meaning of the visual part. Secondly, you explain the meaning of the textual part. Finally, you consider visual and textual meaning to meme as hateful or non-hateful."
 
 }

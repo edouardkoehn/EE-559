@@ -5,7 +5,7 @@ from src.dataset import CustomDataset
 from src.models import Flamingo0S
 from src.utils import ROOT_DIR
 print(time.time())
-
+print(os. getcwd())
 dataset = CustomDataset(
     csv_file=os.path.join(ROOT_DIR, "data", "MMHS150K", "MMHS150K_text_in_image.csv"),
     img_dir=os.path.join(ROOT_DIR, "data", "MMHS150K", "img_resized/"),
