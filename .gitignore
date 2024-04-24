@@ -5,8 +5,11 @@ __pycache__/
 
 # C extensions
 *.so
-data/pretrained_model
-data/MMHS150K
+data/pretrained_model/*
+data/MMHS150K/*
+!data/MMHS150K/examples.json
+
+
 # Distribution / packaging
 .Python
 build/
