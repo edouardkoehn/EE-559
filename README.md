@@ -1,5 +1,31 @@
 # EE-559 Project
 Repository for the EE-559 project
+## How to use the repo
+- Try to avoid absolute path within this repo (use src.utils.ROOT_DIR)
+- Follow this architecture for the data:
+
+```bash
+├── data/
+│   ├── config/ #containing json config files for models or 
+│   ├── pretrained_model/ #containing the model weights
+│   ├── MMHS150K #containing the dataset
+│   │   ├── MMHS150K_GT.json
+│   │   └── img_resized
+│   │   │   ├── 1114679353714016256.jpg
+│   │   │   ├── ...
+│   │   │   └── 1110368198786846720.jpg
+│   │   └── img_txt
+│   │   │   ├── 1114679353714016256.json
+│   │   │   ├── ...
+│   │   │   └── 1110368198786846720.json
+│   │   └── splits
+│   │   │   ├── train_ids.txt
+│   │   │   └── test_ids.txt
+│   │   └────── val_ids.txt
+└── 
+```
+- Create a notebook to debug you code. Once you are happy, create a script under ```/src```. 
+
 ## Installation
 - Clone the repo
 
@@ -8,7 +34,7 @@ git clone git@github.com:edouardkoehn/EE-559.git
 ```
 - Create your virtual env
 ```bash
-conda create -n wm python=3
+conda create -n wm python=3.12
 conda activate EE559
 ```
 - Install poetry
