@@ -26,7 +26,10 @@ class CustomDataset(Dataset):
 
     def __len__(self):
         return self.dataset_len
-
+    def get_index(self, id:int):
+        """Simple method to retrieve the index in the current dataset of a data based on it's id"""
+        return self.dataset.query(f'index=={id}').index
+    
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
