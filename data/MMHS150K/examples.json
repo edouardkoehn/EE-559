@@ -1,10 +1,9 @@
 
 {
-   "1023944988365709312": "Classification: Hateful
-    This meme represents hateful speech due to the fact that it targets a specific community and oversimplifies the situation.",
-    "1023962536549523461" :"Classification: Hateful
-    This meme represents hateful speech due to the fact that it promotes unsocial behavior."
-    
+   "1023944988365709312": "<image>Classification: Hateful/nThis meme represents hateful speech due to the fact that it targets a specific community and oversimplifies the situation.",
+    "1023962536549523461" :"<image>Classification: Hatefuff/nThis meme represents hateful speech due to the fact that it promotes unsocial behavior.",
+    "1024035166304387073": "<image>Classification: Hateful/nThis meme represents hateful speech due to the fact that it refers to conspiracy theory.",
+    "1024027652733194241": "<image>Classification: Not Hateful/nThis meme doesn't represent hateful speech. It only display sarcasm."
 }
 
 
