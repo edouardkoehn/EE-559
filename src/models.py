@@ -3,6 +3,7 @@ import os
 import torch
 from open_flamingo import create_model_and_transforms
 from torch import nn
+import json
 
 from src.utils import ROOT_DIR, load_config_model
 
@@ -40,6 +41,27 @@ class Flamingo0S(nn.Module):
         self.tokenizer.padding_side = "left"
 
         self.prompt_text = config["prompting"]
+        self.prompt_ex=load_config_model(config['example_path'])
+    
+    def initialize_prompt(self, dataset):
+        ex_img=[]
+        ex_text=[]
+        for id, prompt in self.prompt_ex.items():
+            idx=dataset.get_index(id)
+            ex_img.append(self.image_processor(dataset[idx]['image']).unsqueeze(0))
+            ex_text.append(prompt)
+        ex_img=torch.cat(ex_img, dim=0).unsqueeze(1).unsqueeze(0)
+        ex_text='<|endofchunk|>'.join(ex_text)
+        ex_token=self.tokenizer([ex_text], return_tensors="pt")
+
+        generated_text = self.model.generate(
+                                        vision_x=ex_img,
+                                        lang_x=ex_token["input_ids"],
+                                        attention_mask=ex_token["attention_mask"],
+                                        max_new_tokens=20,
+                                        num_beams=3,
+                                        )
+        return self.tokenizer.decode(generated_text[0])
 
     def forward(self, x, train=False):
         """Method get the inferance from the model
@@ -49,7 +71,7 @@ class Flamingo0S(nn.Module):
         visual_input = torch.cat(visual_input, dim=0)
         visual_input = visual_input.unsqueeze(1).unsqueeze(0)
 
-        text_input = [''.join([self.prompt_text, x["tweet_text"]])]
+        text_input = [''.join([self.prompt_text])]
         text_input = self.tokenizer(text_input, return_tensors="pt")
         print(text_input)
         generated_text = self.model.generate(
