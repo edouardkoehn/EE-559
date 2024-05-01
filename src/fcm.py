@@ -98,6 +98,7 @@ class FCM(nn.Module):
         self.image_model = InceptionV3(freeze_image_model).to(device)
         inception_out_dim = 2048
 
+        """
         text_embedding_dim = 100
         text_hidden_dim = 150
         self.text_model_tweet = LSTMClassifier(
@@ -116,6 +117,7 @@ class FCM(nn.Module):
             batch_size,
             device,
         ).to(device)
+        """
 
         if freeze_text_model:
             for param in self.text_model_tweet.parameters():
@@ -123,7 +125,8 @@ class FCM(nn.Module):
             for param in self.text_model_img.parameters():
                 param.requires_grad = False
 
-        self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
+        # self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
+        self.fc1 = nn.Linear(inception_out_dim, 1024).to(device)
         self.fc2 = nn.Linear(1024, 512).to(device)
         self.fc3 = nn.Linear(512, 256).to(device)
         self.fc4 = nn.Linear(256, output_size).to(device)
@@ -141,18 +144,20 @@ class FCM(nn.Module):
         # Extract features from the image
         image_features = self.image_model(image.to(self.device))
         # Turn the InceptionOutput object to a tensor
-        image_features = torch.tensor(image_features[0].detach().numpy()).to(
+        image_features = torch.tensor(image_features[0].detach().cpu().numpy()).to(
             self.device
         )
 
         # Extract features from the texts
-        tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
-        img_text_features = self.text_model_img(img_text.to(self.device))
+        # tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
+        # img_text_features = self.text_model_img(img_text.to(self.device))
 
         # Concatenate the features
+        """
         combined_features = torch.cat(
             (image_features, tweet_text_features, img_text_features), 1
-        )
+        )"""
+        combined_features = image_features
 
         # Pass the features through the fully connected layers
         x = F.relu(self.fc1(combined_features))
