@@ -61,7 +61,7 @@ class InceptionV3(nn.Module):
     def __init__(self, freeze_model=False):
         super(InceptionV3, self).__init__()
 
-        self.inception = models.inception_v3(pretrained=True)
+        self.inception = models.inception_v3(pretrained=False)
         self.inception.fc = nn.Identity()  # Remove the last layer to get the features
 
         if freeze_model:
