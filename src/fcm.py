@@ -2,6 +2,7 @@ import os
 
 import torch
 import torch.nn.functional as F
+from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torchvision import models
 
@@ -30,7 +31,6 @@ class LSTMClassifier(nn.Module):
 
         self.word_embeddings = nn.Embedding(vocab_size, embedding_dim).to(device)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True).to(device)
-        self.hidden2out = nn.Linear(hidden_dim, output_size).to(device)
         self.hidden = self.init_hidden()
 
     def init_hidden(self):
@@ -43,12 +43,13 @@ class LSTMClassifier(nn.Module):
         # sentences is a BatchEncoding object, we need to extract the input_ids
         sentence = sentences["input_ids"]
         embeds = self.word_embeddings(sentence)
+
+        # Detach the hidden state to prevent backpropagation through the entire history
+        self.hidden = tuple([each.data for each in self.hidden])
+
         lstm_out, self.hidden = self.lstm(
             embeds.view(self.batch_size, sentence.shape[1], -1), self.hidden
         )
-        # out_space = self.hidden2out(lstm_out[-1])
-        # out_scores = F.log_softmax(out_space, dim=1)
-        # Return the hidden layer output
         return lstm_out[:, -1, :]
 
 
@@ -60,8 +61,10 @@ class InceptionV3(nn.Module):
 
     def __init__(self, freeze_model=False):
         super(InceptionV3, self).__init__()
-
-        self.inception = models.inception_v3(pretrained=False)
+        weights = "DEFAULT"
+        self.inception = torch.hub.load(
+            "pytorch/vision:v0.10.0", "inception_v3", weights=weights
+        )
         self.inception.fc = nn.Identity()  # Remove the last layer to get the features
 
         if freeze_model:
@@ -98,7 +101,6 @@ class FCM(nn.Module):
         self.image_model = InceptionV3(freeze_image_model).to(device)
         inception_out_dim = 2048
 
-        """
         text_embedding_dim = 100
         text_hidden_dim = 150
         self.text_model_tweet = LSTMClassifier(
@@ -117,7 +119,6 @@ class FCM(nn.Module):
             batch_size,
             device,
         ).to(device)
-        """
 
         if freeze_text_model:
             for param in self.text_model_tweet.parameters():
@@ -125,8 +126,8 @@ class FCM(nn.Module):
             for param in self.text_model_img.parameters():
                 param.requires_grad = False
 
-        # self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
-        self.fc1 = nn.Linear(inception_out_dim, 1024).to(device)
+        self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
+        # self.fc1 = nn.Linear(inception_out_dim, 1024).to(device)
         self.fc2 = nn.Linear(1024, 512).to(device)
         self.fc3 = nn.Linear(512, 256).to(device)
         self.fc4 = nn.Linear(256, output_size).to(device)
@@ -149,15 +150,15 @@ class FCM(nn.Module):
         )
 
         # Extract features from the texts
-        # tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
-        # img_text_features = self.text_model_img(img_text.to(self.device))
+        tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
+        img_text_features = self.text_model_img(img_text.to(self.device))
 
         # Concatenate the features
-        """
+
         combined_features = torch.cat(
             (image_features, tweet_text_features, img_text_features), 1
-        )"""
-        combined_features = image_features
+        )
+        # combined_features = image_features
 
         # Pass the features through the fully connected layers
         x = F.relu(self.fc1(combined_features))
@@ -166,3 +167,110 @@ class FCM(nn.Module):
         x = self.fc4(x)
 
         return x
+
+
+### Functions for training and evaluation
+
+
+def f1(preds, target):
+    return f1_score(target, preds, average="macro")
+
+
+def acc(preds, target):
+    return accuracy_score(target, preds)
+
+
+# Train the model
+def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, device):
+    model.train()
+    epoch_loss = 0
+    epoch_metrics = dict(zip(metrics.keys(), torch.zeros(len(metrics))))
+
+    # Zero the gradients
+    optimizer.zero_grad()
+
+    for i, data_dict in enumerate(train_loader):
+        # print(f"Batch {i}/{len(train_loader)}", end="\r")
+
+        # Get the input data
+        image = data_dict["image"].to(device)
+        label = data_dict["label"].to(device)
+        tweet_text = data_dict["tweet_text"]
+        img_text = data_dict["img_text"]
+
+        # Pass the text through the tokenizer and turn it into a tensor
+        tweet_text = tokenizer(
+            tweet_text, padding=True, truncation=True, return_tensors="pt"
+        )
+        img_text = tokenizer(
+            img_text, padding=True, truncation=True, return_tensors="pt"
+        )
+
+        # Forward pass
+        output = model(image, tweet_text, img_text).squeeze(0)
+        output = torch.nn.Sigmoid()(output)
+
+        # Compute the loss
+        loss = criterion(output, label.float().unsqueeze(1))
+
+        # Backward pass
+        loss.backward()
+        optimizer.step()
+
+        # Zero the gradients
+        optimizer.zero_grad()
+
+        # Compute the metrics
+        with torch.no_grad():
+            predictions = output.argmax(dim=1)
+            epoch_loss += loss.item()
+            for name, metric in metrics.items():
+                epoch_metrics[name] += metric(predictions.cpu(), label.cpu())
+
+    epoch_loss /= len(train_loader)
+    for k in epoch_metrics.keys():
+        epoch_metrics[k] /= len(train_loader)
+
+    return epoch_loss, epoch_metrics
+
+
+# Evaluate the model
+def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
+    model.eval()
+    epoch_loss = 0
+    epoch_metrics = dict(zip(metrics.keys(), torch.zeros(len(metrics))))
+
+    with torch.no_grad():
+        for i, data_dict in enumerate(val_loader):
+            # Get the input data
+            image = data_dict["image"].to(device)
+            label = data_dict["label"].to(device)
+            tweet_text = data_dict["tweet_text"]
+            img_text = data_dict["img_text"]
+
+            tweet_text = tokenizer(
+                tweet_text, padding=True, truncation=True, return_tensors="pt"
+            )
+            img_text = tokenizer(
+                img_text, padding=True, truncation=True, return_tensors="pt"
+            )
+
+            # Forward pass
+            output = model(image, tweet_text).squeeze(0)
+
+            # Compute predictions
+            predictions = output.argmax(dim=1)
+
+            # Compute the loss
+            loss = criterion(output, label.float().unsqueeze(1))
+
+            # Compute the metrics
+            epoch_loss += loss.item()
+            for name, metric in metrics.items():
+                epoch_metrics[name] += metric(predictions.cpu(), label.cpu())
+
+    epoch_loss /= len(val_loader)
+    for k in epoch_metrics.keys():
+        epoch_metrics[k] /= len(val_loader)
+
+    return epoch_loss, epoch_metrics
