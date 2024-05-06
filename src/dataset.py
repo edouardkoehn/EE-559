@@ -32,7 +32,6 @@ class CustomDataset(Dataset):
             idx = idx.tolist()
             
         image_index = self.dataset['index'].values[idx]
-        
         img_path = self.img_dir + str(image_index) + '.jpg'
         image = Image.open(img_path)
         
@@ -50,6 +49,6 @@ class CustomDataset(Dataset):
         tweet_text = self.dataset[self.dataset['index'] == image_index]['tweet_text_clean'].values[0]
         img_text = self.dataset[self.dataset['index'] == image_index]['img_text'].values[0]
         
-        sample = {'image': image, 'label': label, 'tweet_text': tweet_text, 'img_text': img_text}
+        sample = {'image': image, 'label': label, 'tweet_text': tweet_text, 'img_text': img_text, 'index':image_index}
         
         return sample
