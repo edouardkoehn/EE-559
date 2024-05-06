@@ -2,6 +2,7 @@ import pandas as pd
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
 
 
 class CustomDataset(Dataset):
@@ -14,7 +15,8 @@ class CustomDataset(Dataset):
             split (str): 'train' or 'test' or 'val'
             transform (callable, optional): Optional transform to be applied on a sample
         """
-        self.dataset = pd.read_csv(csv_file)
+        full_data = pd.read_csv(csv_file)
+        self.dataset = full_data[full_data["split"] == split]
         self.img_dir = img_dir
         self.split = split
         self.transform = transform
@@ -34,9 +36,16 @@ class CustomDataset(Dataset):
         img_path = self.img_dir + str(image_index) + '.jpg'
         image = Image.open(img_path)
         
+        # If image has 1 channel, convert to 3 channels
+        if image.mode != "RGB":
+            image = image.convert("RGB")
+
         if self.transform:
             image = self.transform(image)
-        
+        else:
+            # Turn image to tensor
+            image = transforms.ToTensor()(image)
+
         label = self.dataset[self.dataset['index'] == image_index]['binary_hate'].values[0]
         tweet_text = self.dataset[self.dataset['index'] == image_index]['tweet_text_clean'].values[0]
         img_text = self.dataset[self.dataset['index'] == image_index]['img_text'].values[0]
