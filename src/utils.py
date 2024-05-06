@@ -12,3 +12,8 @@ def load_config_model(path):
     with open(full_path, "r") as f:
         config = json.load(f)
     return config
+
+def load_json(path):
+    with open(path, "r") as f:
+        config = json.load(f)
+    return config
