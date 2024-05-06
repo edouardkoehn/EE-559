@@ -5,7 +5,7 @@ from open_flamingo import create_model_and_transforms
 from torch import nn
 import json
 
-from src.utils import ROOT_DIR, load_config_model
+from src.utils import ROOT_DIR, load_config_model, load_json
 
 
 class Flamingo0S(nn.Module):
@@ -41,12 +41,14 @@ class Flamingo0S(nn.Module):
         self.tokenizer.padding_side = "left"
 
         self.prompt_text = config["prompting"]
-        self.prompt_ex=load_config_model(config['example_path'])
+        self.prompt_ex=load_json(config['example_path'])
     
     def initialize_prompt(self, dataset):
         ex_img=[]
         ex_text=[]
+        print(self.prompt_ex)
         for id, prompt in self.prompt_ex.items():
+            print(id, prompt)
             idx=dataset.get_index(id)
             ex_img.append(self.image_processor(dataset[idx]['image']).unsqueeze(0))
             ex_text.append(prompt)

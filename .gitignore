@@ -8,7 +8,7 @@ __pycache__/
 data/pretrained_model/*
 data/MMHS150K/*
 !data/MMHS150K/examples.json
-
+*.out
 
 # Distribution / packaging
 .Python
