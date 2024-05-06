@@ -1,0 +1,5 @@
+{
+    "model_name": "Lava0s",
+    "prompting": "USER: <image>\nDo you think that this image is a hateful meme? Please format you answer as following :1)Hateful or not Hateful 2) Explaination\nASSISTANT:",
+    "output_path":"/home/koehn/EE-559/results/lava0S_.json"
+}
