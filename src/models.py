@@ -3,8 +3,10 @@ import os
 import torch
 from open_flamingo import create_model_and_transforms
 from torch import nn
+from torchvision.transforms.functional import to_pil_image as to_pil
+from transformers import LlavaForConditionalGeneration, LlavaProcessor
 
-from src.utils import ROOT_DIR, load_config_model
+from src.utils import ROOT_DIR, load_config_model, load_json
 
 
 class Flamingo0S(nn.Module):
@@ -40,6 +42,29 @@ class Flamingo0S(nn.Module):
         self.tokenizer.padding_side = "left"
 
         self.prompt_text = config["prompting"]
+        self.prompt_ex = load_json(config["example_path"])
+
+    def initialize_prompt(self, dataset):
+        ex_img = []
+        ex_text = []
+        print(self.prompt_ex)
+        for id, prompt in self.prompt_ex.items():
+            print(id, prompt)
+            idx = dataset.get_index(id)
+            ex_img.append(self.image_processor(dataset[idx]["image"]).unsqueeze(0))
+            ex_text.append(prompt)
+        ex_img = torch.cat(ex_img, dim=0).unsqueeze(1).unsqueeze(0)
+        ex_text = "<|endofchunk|>".join(ex_text)
+        ex_token = self.tokenizer([ex_text], return_tensors="pt")
+
+        generated_text = self.model.generate(
+            vision_x=ex_img,
+            lang_x=ex_token["input_ids"],
+            attention_mask=ex_token["attention_mask"],
+            max_new_tokens=20,
+            num_beams=3,
+        )
+        return self.tokenizer.decode(generated_text[0])
 
     def forward(self, x, train=False):
         """Method get the inferance from the model
@@ -49,7 +74,7 @@ class Flamingo0S(nn.Module):
         visual_input = torch.cat(visual_input, dim=0)
         visual_input = visual_input.unsqueeze(1).unsqueeze(0)
 
-        text_input = [''.join([self.prompt_text, x["tweet_text"]])]
+        text_input = ["".join([self.prompt_text])]
         text_input = self.tokenizer(text_input, return_tensors="pt")
         print(text_input)
         generated_text = self.model.generate(
@@ -60,3 +85,29 @@ class Flamingo0S(nn.Module):
             num_beams=3,
         )
         return {"generation": self.tokenizer.decode(generated_text[0])}
+
+
+class Lava(nn.Module):
+    """Class for Flamingo with zero-shot learning"""
+
+    def __init__(self, config_path: os.path) -> None:
+        super(Lava, self).__init__()
+        self.processor = LlavaProcessor.from_pretrained(
+            os.path.join(ROOT_DIR, "data", "pretrained_models", "llava-1.5-7b-hf")
+        )
+        self.model = LlavaForConditionalGeneration.from_pretrained(
+            os.path.join(ROOT_DIR, "data", "pretrained_models", "llava-1.5-7b-hf")
+        )
+        config = load_config_model(config_path)
+        self.prompt_text = config["prompting"]
+
+    def forward(self, x, train=False):
+        """Method get the inferance from the model
+        Args : x(dict): containing the keys:image, labels, tweet_text, img_text
+        """
+        visual_input = to_pil(x["image"])
+        prompt = self.prompt_text
+        inputs = self.processor(prompt, visual_input, return_tensors="pt")
+        generated_text = self.model(**inputs)["generated_text"]
+
+        return {"generation": generated_text, "index": x["index"]}
