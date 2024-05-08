@@ -2,6 +2,7 @@ import os
 
 import torch
 import torch.nn.functional as F
+import tqdm
 from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torchvision import models
@@ -189,9 +190,7 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
     # Zero the gradients
     optimizer.zero_grad()
 
-    for i, data_dict in enumerate(train_loader):
-        # print(f"Batch {i}/{len(train_loader)}", end="\r")
-
+    for i, data_dict in tqdm.tqdm(enumerate(train_loader), total=len(train_loader)):
         # Get the input data
         image = data_dict["image"].to(device)
         label = data_dict["label"].to(device)
