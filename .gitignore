@@ -82,3 +82,9 @@ ipython_config.py
 __pypackages__/
 
 *.DS_Store
+
+slurm*
+
+*.pth
+
+results/

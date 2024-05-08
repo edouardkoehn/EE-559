@@ -2,6 +2,7 @@ import os
 
 import torch
 import torch.nn.functional as F
+import tqdm
 from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
 from torchvision import models
@@ -127,7 +128,6 @@ class FCM(nn.Module):
                 param.requires_grad = False
 
         self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
-        # self.fc1 = nn.Linear(inception_out_dim, 1024).to(device)
         self.fc2 = nn.Linear(1024, 512).to(device)
         self.fc3 = nn.Linear(512, 256).to(device)
         self.fc4 = nn.Linear(256, output_size).to(device)
@@ -140,25 +140,24 @@ class FCM(nn.Module):
                 nn.init.xavier_normal_(m.weight)
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, image, tweet_text, img_text):
+    def forward(self, image, tweet_text, img_text, evaluating=False):
 
         # Extract features from the image
         image_features = self.image_model(image.to(self.device))
-        # Turn the InceptionOutput object to a tensor
-        image_features = torch.tensor(image_features[0].detach().cpu().numpy()).to(
-            self.device
-        )
+        if not evaluating:
+            # Turn the InceptionOutput object to a tensor
+            image_features = torch.tensor(image_features[0].cpu().numpy()).to(
+                self.device
+            )
 
         # Extract features from the texts
         tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
         img_text_features = self.text_model_img(img_text.to(self.device))
 
         # Concatenate the features
-
         combined_features = torch.cat(
-            (image_features, tweet_text_features, img_text_features), 1
+            (image_features, tweet_text_features, img_text_features), -1
         )
-        # combined_features = image_features
 
         # Pass the features through the fully connected layers
         x = F.relu(self.fc1(combined_features))
@@ -189,8 +188,7 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
     # Zero the gradients
     optimizer.zero_grad()
 
-    for i, data_dict in enumerate(train_loader):
-        # print(f"Batch {i}/{len(train_loader)}", end="\r")
+    for i, data_dict in tqdm.tqdm(enumerate(train_loader), total=len(train_loader)):
 
         # Get the input data
         image = data_dict["image"].to(device)
@@ -256,7 +254,8 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
             )
 
             # Forward pass
-            output = model(image, tweet_text).squeeze(0)
+            output = model(image, tweet_text, img_text, True).squeeze(0)
+            output = torch.nn.Sigmoid()(output)
 
             # Compute predictions
             predictions = output.argmax(dim=1)
