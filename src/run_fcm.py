@@ -7,11 +7,8 @@ sys.path.append(PARENT_DIR)
 
 import time
 
-import matplotlib.pyplot as plt
 import pandas as pd
-import requests
 import torch
-from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
@@ -122,9 +119,13 @@ def run_fcm():
             fcm, optimizer, criterion, metrics, train_loader, tokenizer, device
         )
 
+        print("End of training epoch" + str(epoch + 1))
+
         test_loss, test_metrics = eval_epoch(
             fcm, criterion, metrics, eval_loader, tokenizer, device
         )
+
+        print("End of evaluation epoch" + str(epoch + 1))
 
         train_loss_log.append(train_loss)
         train_metrics_log = update_metrics_log(

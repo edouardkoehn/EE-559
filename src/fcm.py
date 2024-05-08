@@ -1,13 +1,7 @@
-import os
-
 import torch
 import torch.nn.functional as F
-import tqdm
 from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
-from torchvision import models
-
-from src.utils import ROOT_DIR, load_config_model
 
 # ----------------------------
 # Starting from here: models from the paper (https://arxiv.org/pdf/1910.03814.pdf)
@@ -40,13 +34,17 @@ class LSTMClassifier(nn.Module):
             torch.zeros(1, self.batch_size, self.hidden_dim).to(self.device),
         )
 
-    def forward(self, sentences):
+    def forward(self, sentences, print_debug):
         # sentences is a BatchEncoding object, we need to extract the input_ids
         sentence = sentences["input_ids"]
         embeds = self.word_embeddings(sentence)
 
         # Detach the hidden state to prevent backpropagation through the entire history
         self.hidden = tuple([each.data for each in self.hidden])
+
+        if print_debug:
+            print("Sentence shape: ", sentence.shape)
+            print("LSTM input shape: ", embeds.shape)
 
         lstm_out, self.hidden = self.lstm(
             embeds.view(self.batch_size, sentence.shape[1], -1), self.hidden
@@ -72,7 +70,9 @@ class InceptionV3(nn.Module):
             for param in self.inception.parameters():
                 param.requires_grad = False
 
-    def forward(self, x):
+    def forward(self, x, print_debug):
+        if print_debug:
+            print("InceptionV3 input shape: ", x.shape)
         return self.inception(x)
 
 
@@ -140,19 +140,33 @@ class FCM(nn.Module):
                 nn.init.xavier_normal_(m.weight)
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, image, tweet_text, img_text, evaluating=False):
+    def forward(self, image, tweet_text, img_text, print_debug, evaluating=False):
+
+        if print_debug:
+            print("Image shape: ", image.shape)
+            print("Tweet text shape: ", tweet_text)
+            print("Image text shape: ", img_text)
 
         # Extract features from the image
-        image_features = self.image_model(image.to(self.device))
+        image_features = self.image_model(image.to(self.device), print_debug)
         if not evaluating:
             # Turn the InceptionOutput object to a tensor
             image_features = torch.tensor(image_features[0].cpu().numpy()).to(
                 self.device
             )
 
+        if print_debug:
+            print("Image features shape: ", image_features.shape)
+
         # Extract features from the texts
-        tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
-        img_text_features = self.text_model_img(img_text.to(self.device))
+        tweet_text_features = self.text_model_tweet(
+            tweet_text.to(self.device), print_debug
+        )
+        img_text_features = self.text_model_img(img_text.to(self.device), print_debug)
+
+        if print_debug:
+            print("Tweet text features shape: ", tweet_text_features.shape)
+            print("Image text features shape: ", img_text_features.shape)
 
         # Concatenate the features
         combined_features = torch.cat(
@@ -188,13 +202,20 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
     # Zero the gradients
     optimizer.zero_grad()
 
-    for i, data_dict in tqdm.tqdm(enumerate(train_loader), total=len(train_loader)):
+    for i, data_dict in enumerate(train_loader):
 
         # Get the input data
         image = data_dict["image"].to(device)
         label = data_dict["label"].to(device)
         tweet_text = data_dict["tweet_text"]
         img_text = data_dict["img_text"]
+
+        if i >= 6640:
+            print("--------------------")
+            print("Debugging epoch" + str(i))
+            print_debug = True
+        else:
+            print_debug = False
 
         # Pass the text through the tokenizer and turn it into a tensor
         tweet_text = tokenizer(
@@ -205,7 +226,7 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
         )
 
         # Forward pass
-        output = model(image, tweet_text, img_text).squeeze(0)
+        output = model(image, tweet_text, img_text, print_debug).squeeze(0)
         output = torch.nn.Sigmoid()(output)
 
         # Compute the loss
@@ -254,7 +275,7 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
             )
 
             # Forward pass
-            output = model(image, tweet_text, img_text, True).squeeze(0)
+            output = model(image, tweet_text, img_text, False, True).squeeze(0)
             output = torch.nn.Sigmoid()(output)
 
             # Compute predictions
