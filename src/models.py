@@ -4,10 +4,10 @@ import torch
 from open_flamingo import create_model_and_transforms
 from torch import nn
 from torchvision.transforms.functional import to_pil_image as to_pil
-from transformers import pipeline
+from transformers import LlavaForConditionalGeneration, LlavaProcessor
 
 from src.utils import ROOT_DIR, load_config_model, load_json
-from transformers import LlavaForConditionalGeneration,LlavaProcessor
+
 
 class Flamingo0S(nn.Module):
     """Class for Flamingo with zero-shot learning"""
@@ -92,8 +92,12 @@ class Lava(nn.Module):
 
     def __init__(self, config_path: os.path) -> None:
         super(Lava, self).__init__()
-        self.processor=LlavaProcessor.from_pretrained(os.path.join(ROOT_DIR, "data", "pretrained_models","llava-1.5-7b-hf"))
-        self.model=LlavaForConditionalGeneration.from_pretrained(os.path.join(ROOT_DIR, "data", "pretrained_models","llava-1.5-7b-hf"))
+        self.processor = LlavaProcessor.from_pretrained(
+            os.path.join(ROOT_DIR, "data", "pretrained_models", "llava-1.5-7b-hf")
+        )
+        self.model = LlavaForConditionalGeneration.from_pretrained(
+            os.path.join(ROOT_DIR, "data", "pretrained_models", "llava-1.5-7b-hf")
+        )
         config = load_config_model(config_path)
         self.prompt_text = config["prompting"]
 
@@ -103,10 +107,11 @@ class Lava(nn.Module):
         """
         visual_input = to_pil(x["image"])
         prompt = self.prompt_text
-        inputs = self.processor(
-            prompt,visual_input, 
-            return_tensors='pt'
-        )
-        generated_text=self.model(**inputs)['generated_text']
-
-        return {"generation": generated_text, "index": x["index"]}
+        inputs = self.processor(prompt, visual_input, return_tensors="pt")
+        generated_text = self.model.generate(**inputs, max_new_tokens=100)
+        return {
+            "generation": self.processor.decode(
+                generated_text[0], skip_special_tokens=True
+            ),
+            "index": x["index"],
+        }

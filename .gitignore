@@ -5,11 +5,11 @@ __pycache__/
 
 # C extensions
 *.so
-data/pretrained_model/*
+data/pretrained_models/*
 data/MMHS150K/*
 !data/MMHS150K/examples.json
 *.out
-
+resutls/*
 
 # Distribution / packaging
 .Python
@@ -99,4 +99,4 @@ EE-559/MMHS150K/img*
 
 # Mac OS
 .DS_Store
->>>>>>> 997687b (Added the scripts to create the correct annotation files and to load the dataset into PyTorch.)
+
