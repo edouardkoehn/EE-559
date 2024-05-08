@@ -1,3 +1,5 @@
+import json
+
 import torch
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score, f1_score
@@ -294,3 +296,45 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
         epoch_metrics[k] /= len(val_loader)
 
     return epoch_loss, epoch_metrics
+
+
+def test_model(model, test_loader, tokenizer, device, savefile_path):
+    """
+    Evaluate the model on the test set and save the predictions
+    in a json located at path_save
+
+    Results are saved such as:
+    {
+        "tweet_id": "prediction"
+    }
+    tweet_id being the index in original dataset and prediction = 0 if not hate speech, 1 otherwise
+    """
+
+    model.eval()
+    predictions = {}
+
+    with torch.no_grad():
+        for i, data_dict in enumerate(test_loader):
+            # Get the input data
+            image = data_dict["image"].to(device)
+            tweet_text = data_dict["tweet_text"]
+            img_text = data_dict["img_text"]
+            img_index = data_dict["index"]
+
+            tweet_text = tokenizer(
+                tweet_text, padding=True, truncation=True, return_tensors="pt"
+            )
+            img_text = tokenizer(
+                img_text, padding=True, truncation=True, return_tensors="pt"
+            )
+
+            # Forward pass
+            output = model(image, tweet_text, img_text, False, True).squeeze(0)
+            output = torch.nn.Sigmoid()(output)
+
+            # Compute predictions
+            predictions.update({img_index: output.argmax(dim=1).item()})
+
+    # Save the predictions in a json file
+    with open(savefile_path, "w") as f:
+        json.dump(predictions, f)
