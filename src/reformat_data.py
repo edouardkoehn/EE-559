@@ -28,7 +28,7 @@ data = pd.read_json(
     DATA_FOLDER, orient="index", convert_dates=False, convert_axes=False
 )
 data = data.reset_index(drop=False)
-data["index"] = data["index"].astype(int)
+data["index"] = data["index"].astype("int64")
 
 ## Clean the tweet text
 # Keep only the text before https://t.co/
