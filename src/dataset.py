@@ -32,7 +32,6 @@ class CustomDataset(Dataset):
             idx = idx.tolist()
             
         image_index = self.dataset['index'].values[idx]
-        
         img_path = self.img_dir + str(image_index) + '.jpg'
         image = Image.open(img_path)
 
