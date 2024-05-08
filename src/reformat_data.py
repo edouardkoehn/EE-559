@@ -38,6 +38,11 @@ regex_tag = r"(^|[^@\w])@(\w{1,15})\b"
 data["tweet_text_clean"] = data["tweet_text_clean"].apply(
     lambda x: re.sub(regex_tag, "<tag>", x)
 )
+# Replace nan with empty string
+data["tweet_text_clean"] = data["tweet_text_clean"].fillna("<empty>")
+data["tweet_text_clean"] = data["tweet_text_clean"].apply(
+    lambda x: "<empty>" if x == "" else x
+)
 
 ## Add the text of the image if it exists
 # Number of files in the folder

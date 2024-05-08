@@ -13,10 +13,7 @@ open-flamingo= "^0.0.2"
 # Dev dependencies
 matplotlib = "^3.8.4"
 seaborn = "^0.13.2"
-nltk = "^3.8.1"
-joblib = "^1.4.0"
-vadersentiment = "^3.3.2"
-textstat = "^0.7.3"
+scikit-learn = "^1.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
