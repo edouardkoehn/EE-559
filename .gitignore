@@ -85,6 +85,7 @@ ipython_config.py
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
+<<<<<<< HEAD
 *.DS_Store
 
 slurm*
@@ -92,3 +93,10 @@ slurm*
 *.pth
 
 results/
+=======
+# Remove the image dataset
+EE-559/MMHS150K/img*
+
+# Mac OS
+.DS_Store
+>>>>>>> 997687b (Added the scripts to create the correct annotation files and to load the dataset into PyTorch.)
