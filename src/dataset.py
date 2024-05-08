@@ -1,8 +1,7 @@
 import pandas as pd
 import torch
 from PIL import Image
-from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms
+from torch.utils.data import Dataset
 
 
 class CustomDataset(Dataset):
@@ -31,10 +30,16 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
+
             
         image_index = self.dataset['index'].values[idx]
         img_path = self.img_dir + str(image_index) + '.jpg'
+
         image = Image.open(img_path)
+
+        # If image has 1 channel, convert to 3 channels
+        if image.mode != "RGB":
+            image = image.convert("RGB")
 
         # If image has 1 channel, convert to 3 channels
         if image.mode != "RGB":
@@ -42,9 +47,6 @@ class CustomDataset(Dataset):
 
         if self.transform:
             image = self.transform(image)
-        else:
-            # Turn image to tensor
-            image = transforms.ToTensor()(image)
 
         label = self.dataset[self.dataset["index"] == image_index][
             "binary_hate"

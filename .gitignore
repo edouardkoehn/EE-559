@@ -85,8 +85,7 @@ ipython_config.py
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 *.DS_Store
 
 slurm*
@@ -94,13 +93,11 @@ slurm*
 *.pth
 
 results/
-=======
+
 # Remove the image dataset
 EE-559/MMHS150K/img*
 
 # Mac OS
 .DS_Store
 
-=======
-*.DS_Store
->>>>>>> 910cb2f (data processing changed as in fcm branch)
+
