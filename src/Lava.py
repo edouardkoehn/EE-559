@@ -18,7 +18,7 @@ print(time.strftime("%H:%M:%S", time.localtime()))
 
 output = {}
 for i in range(0, 3):
-    output[str(dataset[i]["index"])] = model(dataset[i])
+    output[str(dataset[i]["index"])] = model(dataset[i])["generation"]
 
 print(time.strftime("%H:%M:%S", time.localtime()))
 print(output)
