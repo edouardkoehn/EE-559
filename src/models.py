@@ -6,7 +6,7 @@ from torch import nn
 from torchvision.transforms.functional import to_pil_image as to_pil
 from transformers import LlavaForConditionalGeneration, LlavaProcessor
 
-from src.utils import ROOT_DIR, load_config_model, load_json
+from src.utils import ROOT_DIR, load_config_model
 
 
 class Flamingo0S(nn.Module):
@@ -18,13 +18,13 @@ class Flamingo0S(nn.Module):
         self.model_name = config["model_name"]
 
         LANG_MODEL_PATH = os.path.join(
-            ROOT_DIR, "data", "pretrained_models", config["language_model"]
+            ROOT_DIR, "data", "pretrained_model", config["language_model"]
         )
-        CACHE_MODEL = os.path.join(ROOT_DIR, "data", "pretrained_models")
+        CACHE_MODEL = os.path.join(ROOT_DIR, "data", "pretrained_model")
         FLAMINGO_MODEL_PATH = os.path.join(
             ROOT_DIR,
             "data",
-            "pretrained_models",
+            "pretrained_model",
             "OpenFlamingo-3B-vitl-mpt1b",
             "checkpoint.pt",
         )
@@ -42,7 +42,6 @@ class Flamingo0S(nn.Module):
         self.tokenizer.padding_side = "left"
 
         self.prompt_text = config["prompting"]
-        self.prompt_ex = load_json(config["example_path"])
 
     def initialize_prompt(self, dataset):
         ex_img = []
@@ -93,12 +92,13 @@ class Lava(nn.Module):
     def __init__(self, config_path: os.path) -> None:
         super(Lava, self).__init__()
         self.processor = LlavaProcessor.from_pretrained(
-            os.path.join(ROOT_DIR, "data", "pretrained_models", "llava-1.5-7b-hf")
+            os.path.join(ROOT_DIR, "data", "pretrained_model", "llava-1.5-7b-hf")
         )
         self.model = LlavaForConditionalGeneration.from_pretrained(
-            os.path.join(ROOT_DIR, "data", "pretrained_models", "llava-1.5-7b-hf")
+            os.path.join(ROOT_DIR, "data", "pretrained_model", "llava-1.5-7b-hf")
         )
         config = load_config_model(config_path)
+        self.use_tweete_text = config["use_tweete_text"]
         self.prompt_text = config["prompting"]
 
     def forward(self, x, train=False):
@@ -106,8 +106,10 @@ class Lava(nn.Module):
         Args : x(dict): containing the keys:image, labels, tweet_text, img_text
         """
         visual_input = to_pil(x["image"])
-        prompt = self.prompt_text
+        if self.use_tweet_text:
+            prompt = "".join([self.prompt_text, x["tweet_text"]])
+        else:
+            prompt = self.prompt_text
         inputs = self.processor(prompt, visual_input, return_tensors="pt")
         generated_text = self.model(**inputs)["generated_text"]
-
         return {"generation": generated_text, "index": x["index"]}

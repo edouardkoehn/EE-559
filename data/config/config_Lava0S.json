@@ -1,0 +1,6 @@
+{
+    "model_name": "Lava0s",
+    "use_tweete_text": false,
+    "prompting": "'USER:  \nDo you think that this image is a hateful meme? Please format you answer as following :1)Hateful or not Hateful 2) Explaination\nASSISTANT:"
+
+}
