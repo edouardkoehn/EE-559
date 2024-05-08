@@ -1,9 +1,20 @@
+<<<<<<< HEAD
 import json
 
 import torch
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score, f1_score
 from torch import nn
+=======
+import os
+
+import torch
+import torch.nn.functional as F
+from torch import nn
+from torchvision import models
+
+from src.utils import ROOT_DIR, load_config_model
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
 
 # ----------------------------
 # Starting from here: models from the paper (https://arxiv.org/pdf/1910.03814.pdf)
@@ -28,6 +39,10 @@ class LSTMClassifier(nn.Module):
 
         self.word_embeddings = nn.Embedding(vocab_size, embedding_dim).to(device)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, batch_first=True).to(device)
+<<<<<<< HEAD
+=======
+        self.hidden2out = nn.Linear(hidden_dim, output_size).to(device)
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
         self.hidden = self.init_hidden()
 
     def init_hidden(self):
@@ -36,6 +51,7 @@ class LSTMClassifier(nn.Module):
             torch.zeros(1, self.batch_size, self.hidden_dim).to(self.device),
         )
 
+<<<<<<< HEAD
     def forward(self, sentences, print_debug):
         # sentences is a BatchEncoding object, we need to extract the input_ids
         sentence = sentences["input_ids"]
@@ -51,6 +67,18 @@ class LSTMClassifier(nn.Module):
         lstm_out, self.hidden = self.lstm(
             embeds.view(self.batch_size, sentence.shape[1], -1), self.hidden
         )
+=======
+    def forward(self, sentences):
+        # sentences is a BatchEncoding object, we need to extract the input_ids
+        sentence = sentences["input_ids"]
+        embeds = self.word_embeddings(sentence)
+        lstm_out, self.hidden = self.lstm(
+            embeds.view(self.batch_size, sentence.shape[1], -1), self.hidden
+        )
+        # out_space = self.hidden2out(lstm_out[-1])
+        # out_scores = F.log_softmax(out_space, dim=1)
+        # Return the hidden layer output
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
         return lstm_out[:, -1, :]
 
 
@@ -62,19 +90,28 @@ class InceptionV3(nn.Module):
 
     def __init__(self, freeze_model=False):
         super(InceptionV3, self).__init__()
+<<<<<<< HEAD
         weights = "DEFAULT"
         self.inception = torch.hub.load(
             "pytorch/vision:v0.10.0", "inception_v3", weights=weights
         )
+=======
+
+        self.inception = models.inception_v3(pretrained=True)
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
         self.inception.fc = nn.Identity()  # Remove the last layer to get the features
 
         if freeze_model:
             for param in self.inception.parameters():
                 param.requires_grad = False
 
+<<<<<<< HEAD
     def forward(self, x, print_debug):
         if print_debug:
             print("InceptionV3 input shape: ", x.shape)
+=======
+    def forward(self, x):
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
         return self.inception(x)
 
 
@@ -142,6 +179,7 @@ class FCM(nn.Module):
                 nn.init.xavier_normal_(m.weight)
                 nn.init.constant_(m.bias, 0)
 
+<<<<<<< HEAD
     def forward(self, image, tweet_text, img_text, print_debug, evaluating=False):
 
         if print_debug:
@@ -173,6 +211,24 @@ class FCM(nn.Module):
         # Concatenate the features
         combined_features = torch.cat(
             (image_features, tweet_text_features, img_text_features), -1
+=======
+    def forward(self, image, tweet_text, img_text):
+
+        # Extract features from the image
+        image_features = self.image_model(image.to(self.device))
+        # Turn the InceptionOutput object to a tensor
+        image_features = torch.tensor(image_features[0].detach().numpy()).to(
+            self.device
+        )
+
+        # Extract features from the texts
+        tweet_text_features = self.text_model_tweet(tweet_text.to(self.device))
+        img_text_features = self.text_model_img(img_text.to(self.device))
+
+        # Concatenate the features
+        combined_features = torch.cat(
+            (image_features, tweet_text_features, img_text_features), 1
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
         )
 
         # Pass the features through the fully connected layers
@@ -182,6 +238,7 @@ class FCM(nn.Module):
         x = self.fc4(x)
 
         return x
+<<<<<<< HEAD
 
 
 ### Functions for training and evaluation
@@ -338,3 +395,5 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
     # Save the predictions in a json file
     with open(savefile_path, "w") as f:
         json.dump(predictions, f)
+=======
+>>>>>>> 910cb2f (data processing changed as in fcm branch)

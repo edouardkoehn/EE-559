@@ -86,6 +86,7 @@ ipython_config.py
 __pypackages__/
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 *.DS_Store
 
 slurm*
@@ -100,3 +101,6 @@ EE-559/MMHS150K/img*
 # Mac OS
 .DS_Store
 
+=======
+*.DS_Store
+>>>>>>> 910cb2f (data processing changed as in fcm branch)
