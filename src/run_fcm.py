@@ -74,8 +74,12 @@ def run_fcm():
     )
 
     batch_size = 8
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True, drop_last=True
+    )
+    eval_loader = DataLoader(
+        eval_dataset, batch_size=batch_size, shuffle=False, drop_last=True
+    )
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")

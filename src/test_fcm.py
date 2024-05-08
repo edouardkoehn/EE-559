@@ -49,7 +49,7 @@ def test_fcm():
     )
 
     # Load the test dataloader, want to run the test on the full test dataset
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, drop_last=True)
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
