@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from src.dataset import CustomDataset
 from src.models import Lava
@@ -11,14 +12,16 @@ dataset = CustomDataset(
     img_dir=os.path.join(ROOT_DIR, "data", "MMHS150K", "img_resized/"),
     split="test",
 )
-
+print(time.strftime("%H:%M:%S", time.localtime()))
 model = Lava(os.path.join(ROOT_DIR, "data", "config", "config_Lava0S.json"))
+print(time.strftime("%H:%M:%S", time.localtime()))
 
 output = {}
-for i in range(0, 2):
-    print(model(dataset[i]))
-    output[dataset[i]["index"]] = model(dataset[i])
-    print(output)
+for i in range(0, 3):
+    output[str(dataset[i]["index"])] = model(dataset[i])
 
-with open("results.json", "wd") as f:
+print(time.strftime("%H:%M:%S", time.localtime()))
+print(output)
+
+with open("results.json", "w") as f:
     json.dump(output, f)
