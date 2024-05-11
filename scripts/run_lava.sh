@@ -8,8 +8,15 @@
 #SBATCH --account ee-559
 #SBATCH --qos ee-559
 
-# The --reservation line only works during the class.
+# Initialize the env
 conda activate EE559
 echo $CONDA_PREFIX
 echo "$PWD"
-python src/run_lava.py
+
+#Set up the command
+config_file="config_Lava0S_tweet_informed.json"
+command="run_lava -c $config_file"
+echo "$comand"
+
+#run the code
+$command
