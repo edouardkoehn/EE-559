@@ -33,7 +33,7 @@ class CustomDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        image_index = self.dataset["index"].values[idx]
+        image_index = int(self.dataset["index"].values[idx])
 
         img_path = self.img_dir + str(image_index) + ".jpg"
         image = Image.open(img_path)
@@ -42,21 +42,23 @@ class CustomDataset(Dataset):
         if image.mode != "RGB":
             image = image.convert("RGB")
 
-        if self.transform:
+        if self.transform != None:
             image = self.transform(image)
         else:
             # Turn image to tensor
             image = transforms.ToTensor()(image)
 
-        label = self.dataset[self.dataset["index"] == image_index][
-            "binary_hate"
-        ].values[0]
-        tweet_text = self.dataset[self.dataset["index"] == image_index][
-            "tweet_text_clean"
-        ].values[0]
-        img_text = self.dataset[self.dataset["index"] == image_index][
-            "img_text"
-        ].values[0]
+        label = int(
+            self.dataset[self.dataset["index"] == image_index]["binary_hate"].values[0]
+        )
+        tweet_text = str(
+            self.dataset[self.dataset["index"] == image_index][
+                "tweet_text_clean"
+            ].values[0]
+        )
+        img_text = str(
+            self.dataset[self.dataset["index"] == image_index]["img_text"].values[0]
+        )
 
         sample = {
             "image": image,

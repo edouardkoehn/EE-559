@@ -89,27 +89,41 @@ class Flamingo0S(nn.Module):
 class Lava(nn.Module):
     """Class for Flamingo with zero-shot learning"""
 
-    def __init__(self, config_path: os.path) -> None:
+    def __init__(self, config_path: os.path, device) -> None:
         super(Lava, self).__init__()
         self.processor = LlavaProcessor.from_pretrained(
             os.path.join(ROOT_DIR, "data", "pretrained_model", "llava-1.5-7b-hf")
         )
         self.model = LlavaForConditionalGeneration.from_pretrained(
             os.path.join(ROOT_DIR, "data", "pretrained_model", "llava-1.5-7b-hf")
-        )
+        ).to(device)
+        self.model.low_cpu_mem_usage = True
         config = load_config_model(config_path)
-        self.use_tweete_text = config["use_tweete_text"]
-        self.prompt_text = config["prompting"]
+        self.use_tweet_text = config["use_tweete_text"]
+        self.prompt_text = config["prompting"].replace("'", '"')
+        self.device = device
 
     def forward(self, x, train=False):
         """Method get the inferance from the model
+        only accepts batch inputs
         Args : x(dict): containing the keys:image, labels, tweet_text, img_text
         """
-        visual_input = to_pil(x["image"])
+        visual_input = [0 for i in range(x["image"].shape[0])]
+        for i in range(x["image"].shape[0]):
+            visual_input[i] = to_pil(x["image"][i, :, :, :])
+
         if self.use_tweet_text:
-            prompt = "".join([self.prompt_text, x["tweet_text"]])
+            prompt = [
+                "".join([self.prompt_text, x["tweet_text"][i], "\nASSISTANT:"])
+                for i in range(x["image"].shape[0])
+            ]
         else:
-            prompt = self.prompt_text
-        inputs = self.processor(prompt, visual_input, return_tensors="pt")
-        generated_text = self.model(**inputs)["generated_text"]
+            prompt = [self.prompt_text for i in range(x["image"].shape[0])]
+
+        inputs = self.processor(
+            prompt, visual_input, return_tensors="pt", padding=True
+        ).to(self.device)
+        output = self.model.generate(**inputs, do_sample=False)
+        generated_text = self.processor.batch_decode(output, skip_special_tokens=True)
+
         return {"generation": generated_text, "index": x["index"]}

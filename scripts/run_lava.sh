@@ -2,8 +2,8 @@
 #SBATCH --chdir /home/koehn/EE-559
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 1
-#SBATCH --mem 4G
-#SBATCH --time 01:30:00
+#SBATCH --mem 64G
+#SBATCH --time 04:00:00
 #SBATCH --gres gpu:1
 #SBATCH --account ee-559
 #SBATCH --qos ee-559
@@ -12,4 +12,4 @@
 conda activate EE559
 echo $CONDA_PREFIX
 echo "$PWD"
-python src/eval.py
+python src/run_lava.py
