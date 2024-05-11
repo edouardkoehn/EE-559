@@ -73,7 +73,7 @@ def run_fcm():
         transform=transform,
     )
 
-    batch_size = 8
+    batch_size = 32
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, drop_last=True
     )
