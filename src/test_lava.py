@@ -68,7 +68,8 @@ def evalutate_lava(config_file: str):
             with open(result_path, "w") as f:
                 json.dump(output, f)
         index += 1
-
+        if index == 10:
+            break
     # Save the resutls
     with open(result_path, "w") as f:
         json.dump(output, f)
