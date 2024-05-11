@@ -102,7 +102,13 @@ def run_fcm():
 
     # Choose the optimizer and the loss function
     optimizer = torch.optim.Adam(fcm.parameters(), lr=0.0001)
-    criterion = torch.nn.BCEWithLogitsLoss()
+
+    # Get the class imbalance
+    num_label_0 = 43751
+    num_label_1 = 15501
+    class_imbalance = num_label_0 / num_label_1
+
+    criterion = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(class_imbalance))
 
     # Choose the metrics
     metrics = {"ACC": acc, "F1-weighted": f1}
