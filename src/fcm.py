@@ -328,7 +328,17 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
             output = torch.nn.Sigmoid()(output)
 
             # Compute predictions
-            predictions.update({img_index: output.argmax(dim=1).item()})
+            # Get batch size
+            img_index_list = img_index.cpu().numpy().tolist()
+            img_index_str = [str(i) for i in img_index_list]
+
+            batch_size = output.shape[0]
+            predictions.update(
+                {
+                    img_index_str[j]: int(output[j].argmax().cpu().numpy())
+                    for j in range(batch_size)
+                }
+            )
 
     # Save the predictions in a json file
     with open(savefile_path, "w") as f:
