@@ -145,20 +145,28 @@ def run_fcm():
         train_results_path = os.path.join(
             PARENT_DIR,
             "results",
-            "fcm_train_results_" + epoch + "_" + time.strftime("%d%m%y_%H%M") + ".csv",
+            "fcm_train_results_"
+            + str(epoch)
+            + "_"
+            + time.strftime("%d%m%y_%H%M")
+            + ".csv",
         )
         test_results_path = os.path.join(
             PARENT_DIR,
             "results",
-            "fcm_test_results_" + epoch + "_" + time.strftime("%d%m%y_%H%M") + ".csv",
+            "fcm_test_results_"
+            + str(epoch)
+            + "_"
+            + time.strftime("%d%m%y_%H%M")
+            + ".csv",
         )
-        save_metrics_log(train_metrics_log, train_metrics_log, train_results_path)
-        save_metrics_log(test_metrics_log, test_metrics_log, test_results_path)
+        save_metrics_log(metrics_names, train_metrics_log, train_results_path)
+        save_metrics_log(metrics_names, test_metrics_log, test_results_path)
 
         # Save the model
         torch.save(
             fcm.state_dict(),
-            os.path.join(PARENT_DIR, "results", "fcm_epoch" + epoch + ".pth"),
+            os.path.join(PARENT_DIR, "results", "fcm_epoch_" + str(epoch) + ".pth"),
         )
 
     # Save the metrics in PARENT_DIR/results/fcm_train_metrics_DDMMYY_HHMM.csv

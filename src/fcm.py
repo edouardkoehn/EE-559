@@ -204,6 +204,8 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
     # Zero the gradients
     optimizer.zero_grad()
 
+    print_debug = False
+
     for i, data_dict in enumerate(train_loader):
 
         # Get the input data
@@ -211,13 +213,6 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
         label = data_dict["label"].to(device)
         tweet_text = data_dict["tweet_text"]
         img_text = data_dict["img_text"]
-
-        if i >= 6640:
-            print("--------------------")
-            print("Debugging epoch" + str(i))
-            print_debug = True
-        else:
-            print_debug = False
 
         # Pass the text through the tokenizer and turn it into a tensor
         tweet_text = tokenizer(
