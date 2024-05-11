@@ -101,7 +101,7 @@ def run_fcm():
     ).to(device)
 
     # Choose the optimizer and the loss function
-    optimizer = torch.optim.Adam(fcm.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(fcm.parameters(), lr=0.0001)
     criterion = torch.nn.BCEWithLogitsLoss()
 
     # Choose the metrics
@@ -141,34 +141,6 @@ def run_fcm():
             metrics_names, test_metrics_log, test_metrics
         )
 
-        # Save intermediate results
-        train_results_path = os.path.join(
-            PARENT_DIR,
-            "results",
-            "fcm_train_results_"
-            + str(epoch)
-            + "_"
-            + time.strftime("%d%m%y_%H%M")
-            + ".csv",
-        )
-        test_results_path = os.path.join(
-            PARENT_DIR,
-            "results",
-            "fcm_test_results_"
-            + str(epoch)
-            + "_"
-            + time.strftime("%d%m%y_%H%M")
-            + ".csv",
-        )
-        save_metrics_log(metrics_names, train_metrics_log, train_results_path)
-        save_metrics_log(metrics_names, test_metrics_log, test_results_path)
-
-        # Save the model
-        torch.save(
-            fcm.state_dict(),
-            os.path.join(PARENT_DIR, "results", "fcm_epoch_" + str(epoch) + ".pth"),
-        )
-
     # Save the metrics in PARENT_DIR/results/fcm_train_metrics_DDMMYY_HHMM.csv
     train_results_path = os.path.join(
         PARENT_DIR,
@@ -180,11 +152,16 @@ def run_fcm():
         "results",
         "fcm_test_results" + time.strftime("%d%m%y_%H%M") + ".csv",
     )
-    save_metrics_log(train_metrics_log, train_metrics_log, train_results_path)
-    save_metrics_log(test_metrics_log, test_metrics_log, test_results_path)
+    save_metrics_log(metrics_names, train_metrics_log, train_results_path)
+    save_metrics_log(metrics_names, test_metrics_log, test_results_path)
 
     # Save the model
-    torch.save(fcm.state_dict(), os.path.join(PARENT_DIR, "results", "fcm.pth"))
+    torch.save(
+        fcm.state_dict(),
+        os.path.join(
+            PARENT_DIR, "results", "fcm_" + time.strftime("%d%m%y_%H%M") + ".pth"
+        ),
+    )
 
 
 # Run the function
