@@ -46,4 +46,4 @@ exclude = '''
 '''
 # Scripts of your module
 [tool.poetry.scripts]
-run_lava = "src:run_lava.evalutate_lava"
+run_lava = "src:test_lava.evalutate_lava"
