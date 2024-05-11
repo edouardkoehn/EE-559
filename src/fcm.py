@@ -86,6 +86,7 @@ class FCM(nn.Module):
     1. Image features are extracted using InceptionV3 model
     2. Text features (both from the tweet and the image) are extracted using LSTM model
     3. The features are concatenated and passed through 4 fully connected layers to generate the output
+        each FC layer has a corresponding batch normalization layer and ReLU activation function
     """
 
     def __init__(
@@ -129,9 +130,18 @@ class FCM(nn.Module):
             for param in self.text_model_img.parameters():
                 param.requires_grad = False
 
-        self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
-        self.fc2 = nn.Linear(1024, 512).to(device)
-        self.fc3 = nn.Linear(512, 256).to(device)
+        # The FC layers
+        self.fc1 = nn.Sequential(
+            nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(),
+        ).to(device)
+        self.fc2 = nn.Sequential(
+            nn.Linear(1024, 512), nn.BatchNorm1d(512), nn.ReLU()
+        ).to(device)
+        self.fc3 = nn.Sequential(
+            nn.Linear(512, 256), nn.BatchNorm1d(256), nn.ReLU()
+        ).to(device)
         self.fc4 = nn.Linear(256, output_size).to(device)
 
         self.initilize_weights()
@@ -139,7 +149,10 @@ class FCM(nn.Module):
     def initilize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                nn.init.xavier_normal_(m.weight)
+                nn.init.kaiming_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, image, tweet_text, img_text, print_debug, evaluating=False):
