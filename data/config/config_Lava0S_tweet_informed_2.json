@@ -1,0 +1,6 @@
+{
+    "model_name": "Lava0s_tweet_informed",
+    "use_tweete_text": true,
+    "prompting": "USER:<image>\nDefinition: Hate speech can be conveyed through any form of expression, including images, cartoons, memes, objects, gestures and symbols and it can be disseminated offline or online. Hate speech is discriminatory (biased, bigoted or intolerant) or pejorative (prejudiced, contemptuous or demeaning) of an individual or group. Hate speech calls out real or perceived identity factors of an individual or a group, including: religion, ethnicity, nationality, race, colour, descent, gender, but also characteristics such as language, economic or social origin, disability, health status, or sexual orientation, among many others. Based on this image and the following tweet text, do you think that this image is a hateful meme? Try to be bias toward the not hateful classification.  You will output a JSON format as follows: {'Classification': 'hateful,not hateful','Explaination': 'Why you have chosen this classification'}.Tweet text:"
+
+}
