@@ -7,6 +7,7 @@ __pycache__/
 *.so
 data/pretrained_model
 data/MMHS150K
+data/Miniconda3-latest-Linux-x86_64.sh
 # Distribution / packaging
 .Python
 build/
@@ -82,3 +83,9 @@ ipython_config.py
 __pypackages__/
 
 *.DS_Store
+
+slurm*
+
+*.pth
+
+results/

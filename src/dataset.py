@@ -63,6 +63,7 @@ class CustomDataset(Dataset):
             "label": label,
             "tweet_text": tweet_text,
             "img_text": img_text,
+            "index": image_index,
         }
 
         return sample
