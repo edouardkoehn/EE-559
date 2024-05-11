@@ -43,13 +43,16 @@ def test_fcm():
         csv_file=os.path.join(
             PARENT_DIR, "data", "MMHS150K", "MMHS150K_with_img_text.csv"
         ),
-        img_dir=os.path.join(PARENT_DIR, "data", "MMHS150K", "img"),
+        img_dir=os.path.join(PARENT_DIR, "data", "MMHS150K", "img_resized/"),
         split="test",
         transform=transform,
     )
 
     # Load the test dataloader, want to run the test on the full test dataset
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, drop_last=True)
+    batch_size = 32
+    test_loader = DataLoader(
+        test_dataset, batch_size=batch_size, shuffle=False, drop_last=True
+    )
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -59,7 +62,7 @@ def test_fcm():
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-    time_saved = "11052024_1713"
+    time_saved = "110524_1802"
     weight_path = os.path.join(PARENT_DIR, "results", "fcm_" + time_saved + ".pth")
 
     vocab_size = len(tokenizer)
@@ -68,7 +71,7 @@ def test_fcm():
     fcm = FCM(
         device,
         vocab_size,
-        8,
+        batch_size,
         output_size=1,
         freeze_image_model=True,
         freeze_text_model=False,
