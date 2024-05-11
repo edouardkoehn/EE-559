@@ -19,6 +19,7 @@ nltk = "^3.8.1"
 scikit-learn = "^1.4.2"
 transformers = "^4.40.1"
 accelerate = "^0.29.3"
+evaluate = "^0.4.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
