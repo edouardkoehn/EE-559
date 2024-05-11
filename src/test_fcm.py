@@ -59,17 +59,21 @@ def test_fcm():
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-    # Load the model
-    # Create the model
+    time_saved = "11052024_1713"
+    weight_path = os.path.join(PARENT_DIR, "results", "fcm_" + time_saved + ".pth")
+
     vocab_size = len(tokenizer)
+
+    # Load the model
     fcm = FCM(
         device,
         vocab_size,
-        32,
+        8,
         output_size=1,
         freeze_image_model=True,
         freeze_text_model=False,
     ).to(device)
+    fcm.load_state_dict(torch.load(weight_path))
 
     # JSON to save predictions
     json_path = os.path.join(PARENT_DIR, "results", "fcm_predictions.json")
