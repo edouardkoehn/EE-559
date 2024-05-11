@@ -328,7 +328,6 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
             output = torch.nn.Sigmoid()(output)
 
             # Compute predictions
-            # Get batch size
             img_index_list = img_index.cpu().numpy().tolist()
             img_index_str = [str(i) for i in img_index_list]
 
