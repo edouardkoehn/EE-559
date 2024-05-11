@@ -69,3 +69,7 @@ class CustomDataset(Dataset):
         }
 
         return sample
+
+    def get_data_from_index(self, idx):
+        """method to extract one element of the dataset based on it's unique hashcode"""
+        return self.dataset.query(f"index == {idx}")
