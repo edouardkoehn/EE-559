@@ -14,7 +14,7 @@ echo $CONDA_PREFIX
 echo "$PWD"
 
 #Set up the command
-config_file="config_Lava0S_tweet_informed_2.json"
+config_file="config_Lava0S_tweet_only.json"
 command="run_lava -c $config_file"
 echo "$comand"
 

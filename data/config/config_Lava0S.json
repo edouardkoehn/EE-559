@@ -1,5 +1,6 @@
 {
     "model_name": "Lava0s",
     "use_tweete_text": false,
+    "use_image": true,
     "prompting": "USER:<image>\nDo you think that this image is a hateful meme? You will output a JSON format as follows: {'Classification': 'hateful or not hateful','Explaination': 'Why you have chosen this classification'}\nASSISTANT:"
 }

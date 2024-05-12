@@ -100,6 +100,7 @@ class Lava(nn.Module):
         self.model.low_cpu_mem_usage = True
         config = load_config_model(config_path)
         self.use_tweet_text = config["use_tweete_text"]
+        self.use_image = config["use_image"]
         self.prompt_text = config["prompting"].replace("'", '"')
         self.device = device
 
@@ -108,9 +109,14 @@ class Lava(nn.Module):
         only accepts batch inputs
         Args : x(dict): containing the keys:image, labels, tweet_text, img_text
         """
-        visual_input = [0 for i in range(x["image"].shape[0])]
-        for i in range(x["image"].shape[0]):
-            visual_input[i] = to_pil(x["image"][i, :, :, :])
+        if self.use_image:
+            visual_input = [0 for i in range(x["image"].shape[0])]
+            for i in range(x["image"].shape[0]):
+                visual_input[i] = to_pil(x["image"][i, :, :, :])
+        else:
+            visual_input = [0 for i in range(x["image"].shape[0])]
+            for i in range(x["image"].shape[0]):
+                visual_input[i] = to_pil(torch.zeros(x["image"][i, :, :, :].shape))
 
         if self.use_tweet_text:
             prompt = [
