@@ -126,8 +126,8 @@ if __name__ == "__main__":
     data["prediction"] = [predictions[str(i)] for i in data["index"]]
 
     # Compute metrics
-    acc_score = acc(data["prediction"], data["label"])
-    f1_score = f1(data["prediction"], data["label"])
+    acc_score = acc(data["prediction"], data["binary_hate"])
+    f1_score = f1(data["prediction"], data["binary_hate"])
 
     print(f"Accuracy: {acc_score}")
     print(f"F1: {f1_score}")

@@ -135,6 +135,7 @@ def run_fcm():
             + str(epoch + 1)
             + " in "
             + str(time.time() - begin_time)
+            + " seconds."
         )
 
         test_loss, test_metrics = eval_epoch(
