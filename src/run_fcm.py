@@ -124,12 +124,18 @@ def run_fcm():
     for epoch in range(n_epochs):
 
         print(f"Epoch {epoch + 1}/{n_epochs}")
+        begin_time = time.time()
 
         train_loss, train_metrics = train_epoch(
             fcm, optimizer, criterion, metrics, train_loader, tokenizer, device
         )
 
-        print("End of training epoch" + str(epoch + 1))
+        print(
+            "End of training epoch"
+            + str(epoch + 1)
+            + " in "
+            + str(time.time() - begin_time)
+        )
 
         test_loss, test_metrics = eval_epoch(
             fcm, criterion, metrics, eval_loader, tokenizer, device
@@ -151,15 +157,18 @@ def run_fcm():
     train_results_path = os.path.join(
         PARENT_DIR,
         "results",
-        "fcm_train_results" + time.strftime("%d%m%y_%H%M") + ".csv",
+        "fcm_train_results_" + time.strftime("%d%m%y_%H%M") + ".csv",
     )
     test_results_path = os.path.join(
         PARENT_DIR,
         "results",
-        "fcm_test_results" + time.strftime("%d%m%y_%H%M") + ".csv",
+        "fcm_test_results_" + time.strftime("%d%m%y_%H%M") + ".csv",
     )
     save_metrics_log(metrics_names, train_metrics_log, train_results_path)
     save_metrics_log(metrics_names, test_metrics_log, test_results_path)
+
+    print("Train loss: ", train_loss_log)
+    print("Test loss: ", test_loss_log)
 
     # Save the model
     torch.save(

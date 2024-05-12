@@ -198,8 +198,6 @@ class FCM(nn.Module):
 
 
 ### Functions for training and evaluation
-
-
 def f1(preds, target):
     return f1_score(target, preds, average="macro")
 
@@ -237,6 +235,7 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
 
         # Forward pass
         output = model(image, tweet_text, img_text, print_debug).squeeze(0)
+
         output = torch.nn.Sigmoid()(output)
 
         # Compute the loss
@@ -251,7 +250,8 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
 
         # Compute the metrics
         with torch.no_grad():
-            predictions = output.argmax(dim=1)
+            predictions = (output >= 0.5).int()
+
             epoch_loss += loss.item()
             for name, metric in metrics.items():
                 epoch_metrics[name] += metric(predictions.cpu(), label.cpu())
@@ -288,8 +288,8 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
             output = model(image, tweet_text, img_text, False, True).squeeze(0)
             output = torch.nn.Sigmoid()(output)
 
-            # Compute predictions
-            predictions = output.argmax(dim=1)
+            # Compute predictions by applying a threshold
+            predictions = (output >= 0.5).int()
 
             # Compute the loss
             loss = criterion(output, label.float().unsqueeze(1))
@@ -339,6 +339,7 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
             # Forward pass
             output = model(image, tweet_text, img_text, False, True).squeeze(0)
             output = torch.nn.Sigmoid()(output)
+            new_predictions = (output >= 0.5).int()
 
             # Compute predictions
             img_index_list = img_index.cpu().numpy().tolist()
@@ -347,7 +348,7 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
             batch_size = output.shape[0]
             predictions.update(
                 {
-                    img_index_str[j]: int(output[j].argmax().cpu().numpy())
+                    img_index_str[j]: int(new_predictions.cpu().numpy()[j])
                     for j in range(batch_size)
                 }
             )
