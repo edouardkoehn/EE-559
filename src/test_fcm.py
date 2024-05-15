@@ -86,9 +86,7 @@ def test_fcm(time_saved):
     fcm.load_state_dict(torch.load(weight_path))
 
     # JSON to save predictions
-    json_path = os.path.join(
-        PARENT_DIR, "results", "fcm_predictions_" + time_saved + ".json"
-    )
+    json_path = os.path.join(PARENT_DIR, "results")
 
     # Run the test
     test_model(
@@ -96,7 +94,8 @@ def test_fcm(time_saved):
         test_loader=test_loader,
         tokenizer=tokenizer,
         device=device,
-        savefile_path=json_path,
+        savefile_dir=json_path,
+        savetime=time_saved,
     )
 
 

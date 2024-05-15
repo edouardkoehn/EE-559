@@ -1,4 +1,5 @@
 import json
+import os
 
 import torch
 import torch.nn.functional as F
@@ -306,10 +307,11 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
     return epoch_loss, epoch_metrics
 
 
-def test_model(model, test_loader, tokenizer, device, savefile_path):
+def test_model(model, test_loader, tokenizer, device, savefile_dir, savetime):
     """
     Evaluate the model on the test set and save the predictions
-    in a json located at path_save
+    in a json located at path_save/fcm_predictions_{savetime}.json
+    and the outputs pre-threshold in a json located at path_save/fcm_outputs_{savetime}.json
 
     Results are saved such as:
     {
@@ -320,6 +322,9 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
 
     model.eval()
     predictions = {}
+
+    # Also save the outputs to build a ROC curve
+    outputs = {}
 
     with torch.no_grad():
         for i, data_dict in enumerate(test_loader):
@@ -339,6 +344,7 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
             # Forward pass
             output = model(image, tweet_text, img_text, False, True).squeeze(0)
             output = torch.nn.Sigmoid()(output)
+
             new_predictions = (output >= 0.5).int()
 
             # Compute predictions
@@ -353,6 +359,23 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
                 }
             )
 
+            outputs.update(
+                {
+                    img_index_str[j]: float(output.cpu().numpy()[j])
+                    for j in range(batch_size)
+                }
+            )
+
     # Save the predictions in a json file
-    with open(savefile_path, "w") as f:
+    predictions_savefile_path = os.path.join(
+        savefile_dir, "fcm_predictions_" + savetime + ".json"
+    )
+    with open(predictions_savefile_path, "w") as f:
         json.dump(predictions, f)
+
+    # Save the outputs in a json file
+    outputs_savefile_path = os.path.join(
+        savefile_dir, "fcm_outputs_" + savetime + ".json"
+    )
+    with open(outputs_savefile_path, "w") as f:
+        json.dump(outputs, f)
