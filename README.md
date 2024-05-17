@@ -1,37 +1,15 @@
 # EE-559 Project
-Repository for the EE-559 project
-## How to use the repo
-- Try to avoid absolute path within this repo (use src.utils.ROOT_DIR)
-- Follow this architecture for the data:
+Repository contains the code for the project EE559. For this project, we anaylse hateful meme detection. We benchmark three different model: FCM, Bert and Lava.
 
-```bash
-├── data/
-│   ├── config/ #containing json config files for models or 
-│   ├── pretrained_model/ #containing the model weights
-│   ├── MMHS150K #containing the dataset
-│   │   ├── MMHS150K_GT.json
-│   │   └── img_resized
-│   │   │   ├── 1114679353714016256.jpg
-│   │   │   ├── ...
-│   │   │   └── 1110368198786846720.jpg
-│   │   └── img_txt
-│   │   │   ├── 1114679353714016256.json
-│   │   │   ├── ...
-│   │   │   └── 1110368198786846720.json
-│   │   └── splits
-│   │   │   ├── train_ids.txt
-│   │   │   └── test_ids.txt
-│   │   └────── val_ids.txt
-└── 
-```
-- Create a notebook to debug you code. Once you are happy, create a script under ```/src```. 
 
-## Installation
+
+## Installation and downloading the data
+### 1) Set-up the environnement
 - Clone the repo
-
 ```bash
 git clone git@github.com:edouardkoehn/EE-559.git
 ```
+
 - Create your virtual env
 ```bash
 conda create -n wm python=3.12
@@ -47,24 +25,64 @@ poetry install
 poetry run pre-commit install
 poetry env info
 ```
-
-## Managing dependancies
-- to add an dependancy with poetry for exemple numpy
+### 2) Set-up the dataset
+- download the dataset from the following adress: [MMHS150K dataset](https://drive.google.com/file/d/1S9mMhZFkntNnYdO-1dZXwF_8XIiFcmlF/view) and save it under ```data/```
+- Preprocess the dataset using the following commmand:
 ```bash
-poetry add numpy
+python src/reformat_data.py
 ```
-It would automatically install and udpate the pyproject.toml file. If you didn't specifiy it, it would add it to the tool.poetry.dependencies.
+### 3) Set-up the model
+- download the dataset from the following adress: [model weight](https://drive.google.com/drive/folders/178WNg4i2pFYRpRJRPJxdMOGF6n6YnyJA?usp=sharing) and save it under ```data/```
 
-- to add an dependancy with poetry to a specific group
+## Running the code
+
+### 1) FCM model
+#### 1.1) Training FCM model
+The FCM model can trained using the following script :
 ```bash
-poetry add pytest --group test
+python src/run_fcm.py
 ```
-It would automatically install and udpate the pyproject.toml file. The dependancie would be attached to the tool.poetry.dependcies.group.
-[More info about poetry](https://python-poetry.org/docs/managing-dependencies/#adding-a-dependency-to-a-group)
+#### 1.2) Evaluating FCM model
+The FCM model can trained using the following script :
+```bash
+python src/test_fcm.py
+```
+### 2) Bert model
+#### 2.1) Training Bert model
+#### 2.2) Evaluating Bert model
 
-## Pre-commit config
-Pre-commit hook are small software that are called when you do a git commit. Those hooks do several test on you code (formating, imports, etc. ). If not all the tests have been passed, the pre-commmit would not allow you to do the commit. You would have to resolve each of the error before beeing able to do the commit.
+### 3) Llava model
+#### 3.1) Evaluating Llava model
+Prediction for with the Llava model can be generated with :
+```bash
+python src/test_llava.py
+```
+### 4) Reproducing the resutls
+To reproduce the analysis of the results, you can run the following script:
+```bash
+python src/analysis_all.py
+```
+## Repository architecure
 
-Good pratrice with pre-commit :
-1) Git commit regularly
-2) Never git commit when you are in a rush
+```bash
+├── data/
+│   ├── config/ #containing json config files for models
+│   ├── pretrained_model/ #containing the model weights
+│   ├── MMHS150K #containing the dataset
+│   ├── results #containing the prediction of each model in a │json format
+│
+└── src/ #all the python file for running the model
+│
+└── scripts/ #all the bash script for running the model on the cluster
+│
+└── .gitinore
+│
+└── .pre-commit-config.yaml
+│
+└── README.md
+│
+└── pyproject.toml
+│
+└── LICENSE
+```
+Authors: Koehn Edouard, Bricq Marin,De Groot Barbara
