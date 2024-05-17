@@ -1,4 +1,5 @@
 import json
+import os
 
 import torch
 import torch.nn.functional as F
@@ -86,6 +87,7 @@ class FCM(nn.Module):
     1. Image features are extracted using InceptionV3 model
     2. Text features (both from the tweet and the image) are extracted using LSTM model
     3. The features are concatenated and passed through 4 fully connected layers to generate the output
+        each FC layer has a corresponding batch normalization layer and ReLU activation function
     """
 
     def __init__(
@@ -129,9 +131,18 @@ class FCM(nn.Module):
             for param in self.text_model_img.parameters():
                 param.requires_grad = False
 
-        self.fc1 = nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024).to(device)
-        self.fc2 = nn.Linear(1024, 512).to(device)
-        self.fc3 = nn.Linear(512, 256).to(device)
+        # The FC layers
+        self.fc1 = nn.Sequential(
+            nn.Linear(inception_out_dim + 2 * text_hidden_dim, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(),
+        ).to(device)
+        self.fc2 = nn.Sequential(
+            nn.Linear(1024, 512), nn.BatchNorm1d(512), nn.ReLU()
+        ).to(device)
+        self.fc3 = nn.Sequential(
+            nn.Linear(512, 256), nn.BatchNorm1d(256), nn.ReLU()
+        ).to(device)
         self.fc4 = nn.Linear(256, output_size).to(device)
 
         self.initilize_weights()
@@ -139,7 +150,10 @@ class FCM(nn.Module):
     def initilize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                nn.init.xavier_normal_(m.weight)
+                nn.init.kaiming_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, image, tweet_text, img_text, print_debug, evaluating=False):
@@ -185,8 +199,6 @@ class FCM(nn.Module):
 
 
 ### Functions for training and evaluation
-
-
 def f1(preds, target):
     return f1_score(target, preds, average="macro")
 
@@ -204,6 +216,8 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
     # Zero the gradients
     optimizer.zero_grad()
 
+    print_debug = False
+
     for i, data_dict in enumerate(train_loader):
 
         # Get the input data
@@ -211,13 +225,6 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
         label = data_dict["label"].to(device)
         tweet_text = data_dict["tweet_text"]
         img_text = data_dict["img_text"]
-
-        if i >= 6640:
-            print("--------------------")
-            print("Debugging epoch" + str(i))
-            print_debug = True
-        else:
-            print_debug = False
 
         # Pass the text through the tokenizer and turn it into a tensor
         tweet_text = tokenizer(
@@ -229,6 +236,7 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
 
         # Forward pass
         output = model(image, tweet_text, img_text, print_debug).squeeze(0)
+
         output = torch.nn.Sigmoid()(output)
 
         # Compute the loss
@@ -243,7 +251,8 @@ def train_epoch(model, optimizer, criterion, metrics, train_loader, tokenizer, d
 
         # Compute the metrics
         with torch.no_grad():
-            predictions = output.argmax(dim=1)
+            predictions = (output >= 0.5).int()
+
             epoch_loss += loss.item()
             for name, metric in metrics.items():
                 epoch_metrics[name] += metric(predictions.cpu(), label.cpu())
@@ -280,8 +289,8 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
             output = model(image, tweet_text, img_text, False, True).squeeze(0)
             output = torch.nn.Sigmoid()(output)
 
-            # Compute predictions
-            predictions = output.argmax(dim=1)
+            # Compute predictions by applying a threshold
+            predictions = (output >= 0.5).int()
 
             # Compute the loss
             loss = criterion(output, label.float().unsqueeze(1))
@@ -298,10 +307,11 @@ def eval_epoch(model, criterion, metrics, val_loader, tokenizer, device):
     return epoch_loss, epoch_metrics
 
 
-def test_model(model, test_loader, tokenizer, device, savefile_path):
+def test_model(model, test_loader, tokenizer, device, savefile_dir, savetime):
     """
     Evaluate the model on the test set and save the predictions
-    in a json located at path_save
+    in a json located at path_save/fcm_predictions_{savetime}.json
+    and the outputs pre-threshold in a json located at path_save/fcm_outputs_{savetime}.json
 
     Results are saved such as:
     {
@@ -312,6 +322,9 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
 
     model.eval()
     predictions = {}
+
+    # Also save the outputs to build a ROC curve
+    outputs = {}
 
     with torch.no_grad():
         for i, data_dict in enumerate(test_loader):
@@ -332,9 +345,37 @@ def test_model(model, test_loader, tokenizer, device, savefile_path):
             output = model(image, tweet_text, img_text, False, True).squeeze(0)
             output = torch.nn.Sigmoid()(output)
 
+            new_predictions = (output >= 0.5).int()
+
             # Compute predictions
-            predictions.update({img_index: output.argmax(dim=1).item()})
+            img_index_list = img_index.cpu().numpy().tolist()
+            img_index_str = [str(i) for i in img_index_list]
+
+            batch_size = output.shape[0]
+            predictions.update(
+                {
+                    img_index_str[j]: int(new_predictions.cpu().numpy()[j])
+                    for j in range(batch_size)
+                }
+            )
+
+            outputs.update(
+                {
+                    img_index_str[j]: float(output.cpu().numpy()[j])
+                    for j in range(batch_size)
+                }
+            )
 
     # Save the predictions in a json file
-    with open(savefile_path, "w") as f:
+    predictions_savefile_path = os.path.join(
+        savefile_dir, "fcm_predictions_" + savetime + ".json"
+    )
+    with open(predictions_savefile_path, "w") as f:
         json.dump(predictions, f)
+
+    # Save the outputs in a json file
+    outputs_savefile_path = os.path.join(
+        savefile_dir, "fcm_outputs_" + savetime + ".json"
+    )
+    with open(outputs_savefile_path, "w") as f:
+        json.dump(outputs, f)
