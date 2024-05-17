@@ -19,6 +19,7 @@ nltk = "^3.8.1"
 scikit-learn = "^1.4.2"
 transformers = "^4.40.1"
 accelerate = "^0.29.3"
+click = "^8.1.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
@@ -45,4 +46,4 @@ exclude = '''
 '''
 # Scripts of your module
 [tool.poetry.scripts]
-#spectral_clustering = "clustering:spectral_clustering.spectral_clustering"
+run_lava = "src:test_lava.evalutate_lava"

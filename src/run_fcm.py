@@ -113,7 +113,7 @@ def run_fcm():
     # Choose the metrics
     metrics = {"ACC": acc, "F1-weighted": f1}
 
-    n_epochs = 5
+    n_epochs = 15
 
     # Train the model
     train_loss_log, test_loss_log = [], []
