@@ -59,6 +59,9 @@ class CustomDataset(Dataset):
         img_text = str(
             self.dataset[self.dataset["index"] == image_index]["img_text"].values[0]
         )
+        hate_confidence = self.dataset[self.dataset["index"] == image_index][
+            "hate_speech"
+        ].values[0]
 
         sample = {
             "image": image,
@@ -66,6 +69,7 @@ class CustomDataset(Dataset):
             "tweet_text": tweet_text,
             "img_text": img_text,
             "index": image_index,
+            "hate_confidence": hate_confidence,
         }
 
         return sample
