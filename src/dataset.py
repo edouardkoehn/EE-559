@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
