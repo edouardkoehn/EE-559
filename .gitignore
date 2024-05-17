@@ -5,7 +5,14 @@ __pycache__/
 
 # C extensions
 *.so
-data/pretrained_model
+data/pretrained_model/llava-1.5-7b-hf/*
+data/pretrained_model/OpenFlamingo-3B-vitl-mpt1b/*
+data/pretrained_model/OpenFlamingo-4B-vitl-rpj3b/*
+data/pretrained_model/OpenFlamingo-4B-vitl-rpj3b-langinstruct/*
+data/pretrained_model/RedPajama-INCITE-Base-3B-v1/*
+data/pretrained_model/RedPajama-INCITE-Instruct-3B-v1/*
+data/pretrained_model/ViT-L-14.pt
+
 data/MMHS150K
 data/Miniconda3-latest-Linux-x86_64.sh
 # Distribution / packaging
