@@ -14,6 +14,7 @@ data/pretrained_model/RedPajama-INCITE-Instruct-3B-v1/*
 data/pretrained_model/ViT-L-14.pt
 data/figure/*
 data/MMHS150K
+
 data/Miniconda3-latest-Linux-x86_64.sh
 # Distribution / packaging
 .Python
@@ -94,5 +95,3 @@ __pypackages__/
 slurm*
 
 *.pth
-
-results/
