@@ -1,9 +1,8 @@
-import json
-import os
-import re
-
 import numpy as np
 import pandas as pd
+import os
+import json
+import re
 
 from src.utils import ROOT_DIR
 
@@ -13,22 +12,19 @@ from src.utils import ROOT_DIR
 # for ease of use in the future
 
 # Data folder
-DATA_FOLDER = os.path.join(ROOT_DIR, "data", "MMHS150K", "MMHS150K_GT.json")
+DATA_FOLDER = ROOT_DIR + "/data/MMHS150K/MMHS150K_GT.json"
 # Folder with the img_txt
-IMG_TEXT_FOLDER = os.path.join(ROOT_DIR, "data", "MMHS150K", "img_txt/")
+IMG_TEXT_FOLDER = ROOT_DIR + "/data/MMHS150K/img_txt/"
 # Splits folder
-SPLITS_FOLDER = os.path.join(ROOT_DIR, "data", "MMHS150K", "splits/")
-# Output csv files
-OUTPUT_CSV = os.path.join(ROOT_DIR, "data", "MMHS150K", "MMHS150K.csv")
-OUTPUT_TEXT_IN_IMAGE = os.path.join(
-    ROOT_DIR, "data", "MMHS150K", "MMHS150K_text_in_image.csv"
-)
+SPLITS_FOLDER = ROOT_DIR + "/data/MMHS150K/splits/"
+
 ## Load data
 data = pd.read_json(
     DATA_FOLDER, orient="index", convert_dates=False, convert_axes=False
 )
 data = data.reset_index(drop=False)
 data["index"] = data["index"].astype("int64")
+
 
 ## Clean the tweet text
 # Keep only the text before https://t.co/
@@ -38,8 +34,8 @@ regex_tag = r"(^|[^@\w])@(\w{1,15})\b"
 data["tweet_text_clean"] = data["tweet_text_clean"].apply(
     lambda x: re.sub(regex_tag, "<tag>", x)
 )
-# Replace nan with empty string
-data["tweet_text_clean"] = data["tweet_text_clean"].fillna("<empty>")
+# Replace nan and '' with the string <empty>
+data[data["tweet_text_clean"].isna()]["tweet_text_clean"] = "<empty>"
 data["tweet_text_clean"] = data["tweet_text_clean"].apply(
     lambda x: "<empty>" if x == "" else x
 )
@@ -63,13 +59,13 @@ for file in files:
         data.loc[data["index"] == index, "img_text"] = file_data["img_text"]
 data["text_in_image"] = data["img_text"].isna().apply(lambda x: not x)
 
-
 ## Add the hate_speech label
 # replace the labels with a single label hateful or not
 data["hate_speech"] = data.apply(
     lambda x: np.mean([0 if i == 0 else 1 for i in x["labels"]]), axis=1
 )
 data["binary_hate"] = data["hate_speech"].apply(lambda x: 1 if x >= 0.5 else 0)
+
 
 ## Add the split
 # Load the splitsb
@@ -81,11 +77,16 @@ val = pd.read_csv(SPLITS_FOLDER + "val_ids.txt", header=None)
 data["split"] = "train"
 data.loc[data["index"].isin(test[0]), "split"] = "test"
 data.loc[data["index"].isin(val[0]), "split"] = "val"
-
 ## Save the dataset
-data.to_csv(OUTPUT_CSV, index=False)
+data.to_csv(ROOT_DIR + "/data/MMHS150K/MMHS150K.csv", index=False)
+
 # Second version of the dataset with only tweets which have a text in the image
 data2 = data[data["text_in_image"]]
+
+# Remove text_in_image column
 data2 = data2.drop(columns=["text_in_image"])
 # Save the dataset
-data2.to_csv(OUTPUT_TEXT_IN_IMAGE, index=False)
+data2.to_csv(
+    os.path.join(ROOT_DIR, "data", "MMHS150K", "MMHS150K_with_img_text.csv"),
+    index=False,
+)
