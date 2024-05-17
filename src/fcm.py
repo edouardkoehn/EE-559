@@ -367,15 +367,11 @@ def test_model(model, test_loader, tokenizer, device, savefile_dir, savetime):
             )
 
     # Save the predictions in a json file
-    predictions_savefile_path = os.path.join(
-        savefile_dir, "fcm_predictions_" + savetime + ".json"
-    )
+    predictions_savefile_path = os.path.join(savefile_dir, "fcm_predictions.json")
     with open(predictions_savefile_path, "w") as f:
         json.dump(predictions, f)
 
     # Save the outputs in a json file
-    outputs_savefile_path = os.path.join(
-        savefile_dir, "fcm_outputs_" + savetime + ".json"
-    )
+    outputs_savefile_path = os.path.join(savefile_dir, "fcm_outputs.json")
     with open(outputs_savefile_path, "w") as f:
         json.dump(outputs, f)

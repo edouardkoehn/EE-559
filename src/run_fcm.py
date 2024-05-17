@@ -32,16 +32,20 @@ def save_metrics_log(metrics_names, metrics_log, path):
 # Main function
 def run_fcm():
     # Load the normalization parameters
-    # means_std_path = os.path.join(PARENT_DIR, "data", "MMHS150K", "means_stds.csv")
-    # means_stds = pd.read_csv(means_std_path)
+    means_std_path = os.path.join(PARENT_DIR, "data", "MMHS150K", "means_stds.csv")
+    means_stds = pd.read_csv(means_std_path)
 
     # Computed from our dataset
-    # mean = [means_stds["mean_red"][0], means_stds["mean_green"][0], means_stds["mean_blue"][0]]
-    # std = [means_stds["std_red"][0], means_stds["std_green"][0], means_stds["std_blue"][0]]
-
-    # From the ImageNet dataset
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
+    mean = [
+        means_stds["mean_red"][0],
+        means_stds["mean_green"][0],
+        means_stds["mean_blue"][0],
+    ]
+    std = [
+        means_stds["std_red"][0],
+        means_stds["std_green"][0],
+        means_stds["std_blue"][0],
+    ]
 
     # Minimal transformation for the images
     transform = transforms.Compose(
@@ -155,6 +159,7 @@ def run_fcm():
         )
 
     # Save the metrics in PARENT_DIR/results/fcm_train_metrics_DDMMYY_HHMM.csv
+    """
     train_results_path = os.path.join(
         PARENT_DIR,
         "results",
@@ -167,6 +172,7 @@ def run_fcm():
     )
     save_metrics_log(metrics_names, train_metrics_log, train_results_path)
     save_metrics_log(metrics_names, test_metrics_log, test_results_path)
+    """
 
     print("Train loss: ", train_loss_log)
     print("Test loss: ", test_loss_log)
@@ -175,7 +181,7 @@ def run_fcm():
     torch.save(
         fcm.state_dict(),
         os.path.join(
-            PARENT_DIR, "results", "fcm_" + time.strftime("%d%m%y_%H%M") + ".pth"
+            PARENT_DIR, "data", "fcm_" + time.strftime("%d%m%y_%H%M") + ".pth"
         ),
     )
 

@@ -24,16 +24,20 @@ def test_fcm(time_saved):
     """
 
     # Load the normalization parameters
-    # means_std_path = os.path.join(PARENT_DIR, "data", "MMHS150K", "means_stds.csv")
-    # means_stds = pd.read_csv(means_std_path)
+    means_std_path = os.path.join(PARENT_DIR, "data", "MMHS150K", "means_stds.csv")
+    means_stds = pd.read_csv(means_std_path)
 
     # Computed from our dataset
-    # mean = [means_stds["mean_red"][0], means_stds["mean_green"][0], means_stds["mean_blue"][0]]
-    # std = [means_stds["std_red"][0], means_stds["std_green"][0], means_stds["std_blue"][0]]
-
-    # From the ImageNet dataset
-    mean = [0.485, 0.456, 0.406]
-    std = [0.229, 0.224, 0.225]
+    mean = [
+        means_stds["mean_red"][0],
+        means_stds["mean_green"][0],
+        means_stds["mean_blue"][0],
+    ]
+    std = [
+        means_stds["std_red"][0],
+        means_stds["std_green"][0],
+        means_stds["std_blue"][0],
+    ]
 
     # Minimal transformation for the images
     transform = transforms.Compose(
@@ -70,7 +74,7 @@ def test_fcm(time_saved):
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-    weight_path = os.path.join(PARENT_DIR, "results", "fcm_" + time_saved + ".pth")
+    weight_path = os.path.join(PARENT_DIR, "data", "fcm_" + time_saved + ".pth")
 
     vocab_size = len(tokenizer)
 
@@ -86,7 +90,7 @@ def test_fcm(time_saved):
     fcm.load_state_dict(torch.load(weight_path))
 
     # JSON to save predictions
-    json_path = os.path.join(PARENT_DIR, "results")
+    json_path = os.path.join(PARENT_DIR, "data", "results")
 
     # Run the test
     test_model(
@@ -109,9 +113,7 @@ if __name__ == "__main__":
     )
     df = pd.read_csv(DATASET_PATH)
 
-    RESULTS_PATH = os.path.join(
-        PARENT_DIR, "results", "fcm_predictions_" + time_saved + ".json"
-    )
+    RESULTS_PATH = os.path.join(PARENT_DIR, "data", "results", "fcm_predictions.json")
 
     # Load predictions
     with open(RESULTS_PATH, "r") as f:
