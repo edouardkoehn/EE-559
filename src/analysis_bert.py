@@ -1,21 +1,12 @@
 from src.utils import ROOT_DIR
-import sys
 
-sys.path.append(ROOT_DIR)
-
-from src.dataset import CustomDataset
-from src.fcm import FCM
-from src.fcm import train_epoch, eval_epoch, acc, f1
-import torch
+from src.fcm import acc, f1
 
 import matplotlib.pyplot as plt
-from PIL import Image
-import requests
-import torch
-from src.dataset import CustomDataset
-from torch.utils.data import DataLoader
-from torchvision import transforms
 import pandas as pd
+from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 import os
 
@@ -26,10 +17,10 @@ df = pd.read_csv(DATASET_PATH)
 # Load the saved predictions
 
 PREDICTIONS_PATH = os.path.join(
-    ROOT_DIR, "data", "results_bert_tiny_2", "predictions_bin_bert.json"
+    ROOT_DIR, "data", "results", "Bert", "predictions_bin_bert.json"
 )
 OUTPUTS_PATH = os.path.join(
-    ROOT_DIR, "data", "results_bert_tiny_2", "predictions_prob_bert.json"
+    ROOT_DIR, "data", "results", "Bert", "predictions_prob_bert.json"
 )
 
 import json
@@ -50,12 +41,10 @@ df_test["output"] = [outputs[str(k)] for k in df_test["index"]]
 acc_score = acc(df_test["binary_hate"], df_test["pred"])
 f1_score = f1(df_test["binary_hate"], df_test["pred"])
 
-print(f"Accuracy: {acc_score}")
-print(f"F1 score: {f1_score}")
+print(f"Bert model_Accuracy: {acc_score}")
+print(f"Bert model_F1 score: {f1_score}")
 
 # Plot the ROC curve
-from sklearn.metrics import roc_curve, auc
-import numpy as np
 
 fpr, tpr, _ = roc_curve(df_test["binary_hate"], df_test["output"])
 roc_auc = auc(fpr, tpr)
@@ -85,13 +74,12 @@ ax[1].set_ylabel("Count")
 plt.show()
 
 # Plot the confusion matrix
-from sklearn.metrics import confusion_matrix
-import seaborn as sns
+
 
 cm = confusion_matrix(df_test["binary_hate"], df_test["pred"])
 
-print("True positive rate: ", cm[1, 1] / (cm[1, 1] + cm[1, 0]))
-print("True negative rate: ", cm[0, 0] / (cm[0, 0] + cm[0, 1]))
+print("Bert model_True positive rate: ", cm[1, 1] / (cm[1, 1] + cm[1, 0]))
+print("Bert model_True negative rate: ", cm[0, 0] / (cm[0, 0] + cm[0, 1]))
 
 sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
 plt.xlabel("Predicted labels")
