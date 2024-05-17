@@ -38,12 +38,12 @@ python src/reformat_data.py
 
 ### 1) FCM model
 #### 1.1) Training FCM model
-The FCM model can trained using the following script :
+The FCM model can be trained using the following script :
 ```bash
 python src/run_fcm.py
 ```
 #### 1.2) Evaluating FCM model
-The FCM model can trained using the following script :
+A saved FCM model can be then be tested using :
 ```bash
 python src/test_fcm.py
 ```
