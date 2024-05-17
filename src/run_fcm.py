@@ -73,9 +73,13 @@ def run_fcm():
         transform=transform,
     )
 
-    batch_size = 8
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+    batch_size = 32
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True, drop_last=True
+    )
+    eval_loader = DataLoader(
+        eval_dataset, batch_size=batch_size, shuffle=False, drop_last=True
+    )
 
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -97,13 +101,19 @@ def run_fcm():
     ).to(device)
 
     # Choose the optimizer and the loss function
-    optimizer = torch.optim.Adam(fcm.parameters(), lr=0.001)
-    criterion = torch.nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(fcm.parameters(), lr=0.0001)
+
+    # Get the class imbalance
+    num_label_0 = 43751
+    num_label_1 = 15501
+    class_imbalance = num_label_0 / num_label_1
+
+    criterion = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor(class_imbalance))
 
     # Choose the metrics
     metrics = {"ACC": acc, "F1-weighted": f1}
 
-    n_epochs = 5
+    n_epochs = 15
 
     # Train the model
     train_loss_log, test_loss_log = [], []
@@ -114,12 +124,19 @@ def run_fcm():
     for epoch in range(n_epochs):
 
         print(f"Epoch {epoch + 1}/{n_epochs}")
+        begin_time = time.time()
 
         train_loss, train_metrics = train_epoch(
             fcm, optimizer, criterion, metrics, train_loader, tokenizer, device
         )
 
-        print("End of training epoch" + str(epoch + 1))
+        print(
+            "End of training epoch"
+            + str(epoch + 1)
+            + " in "
+            + str(time.time() - begin_time)
+            + " seconds."
+        )
 
         test_loss, test_metrics = eval_epoch(
             fcm, criterion, metrics, eval_loader, tokenizer, device
@@ -137,42 +154,30 @@ def run_fcm():
             metrics_names, test_metrics_log, test_metrics
         )
 
-        # Save intermediate results
-        train_results_path = os.path.join(
-            PARENT_DIR,
-            "results",
-            "fcm_train_results_" + epoch + "_" + time.strftime("%d%m%y_%H%M") + ".csv",
-        )
-        test_results_path = os.path.join(
-            PARENT_DIR,
-            "results",
-            "fcm_test_results_" + epoch + "_" + time.strftime("%d%m%y_%H%M") + ".csv",
-        )
-        save_metrics_log(train_metrics_log, train_metrics_log, train_results_path)
-        save_metrics_log(test_metrics_log, test_metrics_log, test_results_path)
-
-        # Save the model
-        torch.save(
-            fcm.state_dict(),
-            os.path.join(PARENT_DIR, "results", "fcm_epoch" + epoch + ".pth"),
-        )
-
     # Save the metrics in PARENT_DIR/results/fcm_train_metrics_DDMMYY_HHMM.csv
     train_results_path = os.path.join(
         PARENT_DIR,
         "results",
-        "fcm_train_results" + time.strftime("%d%m%y_%H%M") + ".csv",
+        "fcm_train_results_" + time.strftime("%d%m%y_%H%M") + ".csv",
     )
     test_results_path = os.path.join(
         PARENT_DIR,
         "results",
-        "fcm_test_results" + time.strftime("%d%m%y_%H%M") + ".csv",
+        "fcm_test_results_" + time.strftime("%d%m%y_%H%M") + ".csv",
     )
-    save_metrics_log(train_metrics_log, train_metrics_log, train_results_path)
-    save_metrics_log(test_metrics_log, test_metrics_log, test_results_path)
+    save_metrics_log(metrics_names, train_metrics_log, train_results_path)
+    save_metrics_log(metrics_names, test_metrics_log, test_results_path)
+
+    print("Train loss: ", train_loss_log)
+    print("Test loss: ", test_loss_log)
 
     # Save the model
-    torch.save(fcm.state_dict(), os.path.join(PARENT_DIR, "results", "fcm.pth"))
+    torch.save(
+        fcm.state_dict(),
+        os.path.join(
+            PARENT_DIR, "results", "fcm_" + time.strftime("%d%m%y_%H%M") + ".pth"
+        ),
+    )
 
 
 # Run the function

@@ -3,7 +3,7 @@
 #SBATCH --ntasks 1
 #SBATCH --cpus-per-task 1
 #SBATCH --mem 4G
-#SBATCH --time 03:00:00
+#SBATCH --time 00:30:00
 #SBATCH --gres gpu:1
 #SBATCH --account ee-559
 #SBATCH --qos ee-559
@@ -12,4 +12,4 @@
 conda activate EE559
 echo $CONDA_PREFIX
 echo "$PWD"
-python src/run_fcm.py
+python src/test_fcm.py
