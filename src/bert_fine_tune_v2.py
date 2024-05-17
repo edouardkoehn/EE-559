@@ -141,10 +141,10 @@ for batch in eval_dataloader:
     logits = outputs.logits
 
     # use softmax to get the predicted probabilities
-    probabilities = torch.softmax(logits, dim=-1)
+    probabilities = torch.sigmoid(logits)
 
     # add the probabilities of the positive class to the dictionary
-    for i, probability in zip(indices, probabilities[:, 0]):
+    for i, probability in zip(indices, probabilities[:, 1]):
         predictions_prob_dict[
             i.item()
         ] = probability.item()  # assuming that the positive class is the second one
