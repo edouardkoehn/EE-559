@@ -1,7 +1,0 @@
-{
-    "model_name": "Lava0s_tweet_claude",
-    "use_tweete_text": true,
-    "use_image": true,
-    "prompting": "USER:<image>\nPlease determine whether the following meme is hateful or not using the visual information of the image and the textual information of the TWEET_TEXT.First, explain your reasoning for why the text is hateful or not hateful.Then, give your final verdict of either HATEFUL or NOT HATEFUL. It's important to be sensitive to hate speech and slurs targeting protected groups, but also to not be overly sensitive in labeling things hateful if they are more ambiguous or if slurs are potentially being used in a reclaimed or neutral way.TWEET_TEXT:"
-
-}
