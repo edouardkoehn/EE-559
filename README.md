@@ -1,5 +1,7 @@
-# EE-559 Project
-Repository contains the code for the project EE559. For this project, we anaylse hateful meme detection. We benchmark three different model: FCM, Bert and Lava.
+
+# EE-559 Project 🌋
+
+Repository contains the code for the project EE559. For this project, we benchmarked hateful meme detection technics. We benchmark three different model: FCM, Bert and Lava. For the FCM and Bert model, this repository contains workflow to train and evaluate those model. For the Llava model, this repository contains only workflow to evaluate the model.
 
 
 
@@ -37,6 +39,7 @@ python src/reformat_data.py
 ## Running the code
 
 ### 1) FCM model
+FCM is a multi-modal classifier. This implementation is based on this [paper](https://arxiv.org/pdf/1910.03814).
 #### 1.1) Training FCM model
 The FCM model can be trained using the following script :
 ```bash
@@ -48,19 +51,28 @@ A saved FCM model can be then be tested using :
 python src/test_fcm.py
 ```
 ### 2) Bert model
-#### 2.1) Training Bert model
-#### 2.2) Evaluating Bert model
-
+Bert is a transfomer based classifier([original paper](https://arxiv.org/pdf/1810.04805)).
+#### 2.1) Training and evaluating Bert model
+To train this model, you can use the following script.
+```bash
+python src/bert_fine_tune_v2.py
+```
 ### 3) Llava model
 #### 3.1) Evaluating Llava model
 Prediction for with the Llava model can be generated with :
 ```bash
 python src/test_llava.py
 ```
-### 4) Reproducing the resutls
-To reproduce the analysis of the results, you can run the following script:
+To reproduce the analysis of the results, you need to reformat the prediction of the model. In order to reformat the predcitions and run the evalutations, you can do:
 ```bash
-python src/analysis_all.py
+python src/reformat_lava_results.py
+python src/analysis_llava.py
+```
+### 4) Reproducing the resutls
+To reproduce the analysis of the results, you need to reformat the prediction of the Llava model. In order to reformat the predcitions and run the evalutations, you can do:
+```bash
+python src/reformat_lava_results.py
+python src/analysis_llava.py
 ```
 ## Repository architecure
 
