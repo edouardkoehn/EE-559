@@ -181,7 +181,7 @@ def run_fcm():
     torch.save(
         fcm.state_dict(),
         os.path.join(
-            PARENT_DIR, "data", "fcm_" + time.strftime("%d%m%y_%H%M") + ".pth"
+            PARENT_DIR, "data", "fcm", "fcm_" + time.strftime("%d%m%y_%H%M") + ".pth"
         ),
     )
 

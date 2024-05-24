@@ -74,7 +74,7 @@ def test_fcm(time_saved):
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-    weight_path = os.path.join(PARENT_DIR, "data", "fcm_" + time_saved + ".pth")
+    weight_path = os.path.join(PARENT_DIR, "data", "fcm", "fcm_" + time_saved + ".pth")
 
     vocab_size = len(tokenizer)
 
@@ -87,7 +87,10 @@ def test_fcm(time_saved):
         freeze_image_model=True,
         freeze_text_model=False,
     ).to(device)
-    fcm.load_state_dict(torch.load(weight_path))
+    if torch.cuda.is_available():
+        fcm.load_state_dict(torch.load(weight_path))
+    else:
+        fcm.load_state_dict(torch.load(weight_path, map_location=torch.device("cpu")))
 
     # JSON to save predictions
     json_path = os.path.join(PARENT_DIR, "data", "results")
@@ -104,7 +107,7 @@ def test_fcm(time_saved):
 
 
 if __name__ == "__main__":
-    time_saved = "110524_2134"
+    time_saved = "160524_1651"
     test_fcm(time_saved=time_saved)
 
     # Load dataset

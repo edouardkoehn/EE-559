@@ -328,6 +328,9 @@ def test_model(model, test_loader, tokenizer, device, savefile_dir, savetime):
 
     with torch.no_grad():
         for i, data_dict in enumerate(test_loader):
+
+            print(f"Batch {i+1}/{len(test_loader)}")
+
             # Get the input data
             image = data_dict["image"].to(device)
             tweet_text = data_dict["tweet_text"]
