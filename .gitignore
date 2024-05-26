@@ -17,6 +17,7 @@ data/pretrained_model/llava-1.5-7b-hf/*
 data/figure/*
 data/MMHS150K
 !data/pretrained_model/.placeholder
+!data/pretrained_model/.gitkeep
 data/Miniconda3-latest-Linux-x86_64.sh
 # Distribution / packaging
 .Python
