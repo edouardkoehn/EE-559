@@ -3,6 +3,8 @@
 
 Repository contains the code for the project EE559. For this project, we benchmarked hateful meme detection technics. We benchmark three different model: FCM, Bert and Lava. For the FCM and Bert model, this repository contains workflow to train and evaluate those model. For the Llava model, this repository contains only workflow to evaluate the model.
 
+To run the code please READ the readme!!!
+This code can be run, on a machine that has the cuda driver. The dataset weights around 6GB and the Llava model weights around 8GB, thus be sure you have enogh space on your machine. 
 
 
 ## Installation and downloading the data
