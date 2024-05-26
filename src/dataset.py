@@ -33,10 +33,18 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        index = self.dataset[self.dataset.index == idx].index.to_list()[0]
-
-        image_index = self.dataset["index"][index]
-
+        #print('input_id',idx)
+        
+        #print('Marin',self.dataset["index"].values[idx].tolist())
+        #print('edi',self.dataset[self.dataset.index == idx].index.to_list()[0])
+        index=self.dataset["index"].values[idx].tolist()
+       
+        #index = self.dataset[self.dataset.index == idx].index.to_list()[0]
+        
+        #index=self.dataset["index"].values[idx]
+        image_index=index
+        #image_index = self.dataset["index"][index]
+        
         img_path = self.img_dir + str(image_index) + ".jpg"
         image = Image.open(img_path)
 

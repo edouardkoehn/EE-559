@@ -1,13 +1,8 @@
-from src.dataset import CustomDataset
+
 from src.utils import ROOT_DIR
-from src.models import Lava
-from torch.utils.data import DataLoader
 import os
-import torch
-import time
-from torchvision import transforms
 import json
-import sys
+
 
 # Change to the path ot your data (prediction_lava.json)
 path_lava_image = ...

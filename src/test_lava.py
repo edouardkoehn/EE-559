@@ -39,7 +39,7 @@ def evalutate_lava(config_file: str):
     # load the data
     dataset = CustomDataset(
         csv_file=os.path.join(
-            ROOT_DIR, "data", "MMHS150K", "MMHS150K_text_in_image.csv"
+            ROOT_DIR, "data","MMHS150K", "MMHS150K_with_img_text.csv"
         ),
         img_dir=os.path.join(ROOT_DIR, "data", "MMHS150K", "img_resized/"),
         split="test",

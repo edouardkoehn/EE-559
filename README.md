@@ -1,8 +1,8 @@
 
 # EE-559 Project 🌋
+Repository contains the code for the project EE559. For this project, we benchmarked hateful meme detection techniques. We tested three different models: FCM, Bert, and Llava. For the FCM and Bert models, this repository contains workflows to train and evaluate those models. For the Llava model, this repository contains only workflows to evaluate the model.
 
-Repository contains the code for the project EE559. For this project, we benchmarked hateful meme detection technics. We benchmark three different model: FCM, Bert and Lava. For the FCM and Bert model, this repository contains workflow to train and evaluate those model. For the Llava model, this repository contains only workflow to evaluate the model.
-
+To run the code, please READ the readme!!! This code can be run on a machine that has the CUDA driver. The dataset weighs around 6GB and the Llava model weighs around 8GB, thus be sure you have enough space on your machine.
 
 
 ## Installation and downloading the data
@@ -28,7 +28,7 @@ poetry run pre-commit install
 poetry env info
 ```
 ### 2) Set-up the dataset
-- download the dataset from the following adress: [MMHS150K dataset](https://drive.google.com/file/d/1S9mMhZFkntNnYdO-1dZXwF_8XIiFcmlF/view) and save it under ```data/```
+- download the dataset from the following adress: [MMHS150K dataset](https://drive.google.com/file/d/1hdbNEup0gYTuOgmy6nXow43YxDdAxxW1/view?usp=sharing) and save it under ```data/```
 - Preprocess the dataset using the following commmand:
 ```bash
 python src/reformat_data.py
@@ -59,21 +59,21 @@ python src/bert_fine_tune_v2.py
 ```
 ### 3) Llava model
 #### 3.1) Evaluating Llava model
-Prediction for with the Llava model can be generated with :
+Prediction with the Llava model can be generated with :
 ```bash
-python src/test_llava.py
+run_lava -c config_debug.json
 ```
-To reproduce the analysis of the results, you need to reformat the prediction of the model. In order to reformat the predcitions and run the evalutations, you can do:
+You need to choose one of the config files that can be found under ```data/config```
+To reproduce the analysis of the results, you need to reformat the prediction of the model. In order to reformat the predcitions, you can do:
 ```bash
 python src/reformat_lava_results.py
-python src/analysis_llava.py
 ```
 ### 4) Reproducing the resutls
-To reproduce the analysis of the results, you need to reformat the prediction of the Llava model. In order to reformat the predcitions and run the evalutations, you can do:
+To reproduce the results of this project, you just have to run:
 ```bash
-python src/reformat_lava_results.py
-python src/analysis_llava.py
+python src/analysis_all.py
 ```
+This script run the analysis for each model and save the figure under the folder ```data/figure```.
 ## Repository architecure
 
 ```bash
