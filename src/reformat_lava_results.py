@@ -5,12 +5,12 @@ import json
 
 
 # Change to the path ot your data (prediction_lava.json)
-path_lava_image = ...
+path_lava_image = "/Users/edouardkoehn/Documents/Github/EE-559/data/results/Llava/Lava0s_tweet_informed_prediction_on_test.json"
 result_path_reformated = os.path.join(
-    ROOT_DIR, "data", "results", "Lava0S_prediction_on_test_reformated.json"
+    ROOT_DIR, "data", "results", "Lava0s_tweet_informed_prediction_on_test_reformated.json"
 )
 result_path_final = os.path.join(
-    ROOT_DIR, "data", "results", "Lava0S_prediction_on_test_final.json"
+    ROOT_DIR, "data", "results", "Lava0s_prediction_on_test_final.json"
 )
 
 with open(path_lava_image, "r") as f:
