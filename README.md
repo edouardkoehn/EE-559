@@ -61,8 +61,9 @@ python src/bert_fine_tune_v2.py
 #### 3.1) Evaluating Llava model
 Prediction for with the Llava model can be generated with :
 ```bash
-python src/test_llava.py
+run_lava -c config_debug.json
 ```
+You need to choose one of the config files that can be found under ```data/config```
 To reproduce the analysis of the results, you need to reformat the prediction of the model. In order to reformat the predcitions and run the evalutations, you can do:
 ```bash
 python src/reformat_lava_results.py
@@ -71,8 +72,7 @@ python src/analysis_llava.py
 ### 4) Reproducing the resutls
 To reproduce the analysis of the results, you need to reformat the prediction of the Llava model. In order to reformat the predcitions and run the evalutations, you can do:
 ```bash
-python src/reformat_lava_results.py
-python src/analysis_llava.py
+python src/analysis_all.py
 ```
 ## Repository architecure
 

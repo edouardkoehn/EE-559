@@ -5,8 +5,8 @@
 #SBATCH --mem 4G
 #SBATCH --time 03:00:00
 #SBATCH --gres gpu:1
-#SBATCH --account ee-559
-#SBATCH --qos ee-559
+#SBATCH --account cs-552
+#SBATCH --qos cs-552
 
 # The --reservation line only works during the class.
 conda activate EE559

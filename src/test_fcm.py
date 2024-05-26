@@ -74,7 +74,7 @@ def test_fcm(time_saved):
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
 
-    weight_path = os.path.join(PARENT_DIR, "data", "fcm_" + time_saved + ".pth")
+    weight_path = os.path.join(PARENT_DIR, "data","pretrained_model","fcm", "fcm_" + time_saved + ".pth")
 
     vocab_size = len(tokenizer)
 
@@ -104,7 +104,7 @@ def test_fcm(time_saved):
 
 
 if __name__ == "__main__":
-    time_saved = "110524_2134"
+    time_saved = "160524_1651"
     test_fcm(time_saved=time_saved)
 
     # Load dataset
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     )
     df = pd.read_csv(DATASET_PATH)
 
-    RESULTS_PATH = os.path.join(PARENT_DIR, "data", "results", "fcm_predictions.json")
+    RESULTS_PATH = os.path.join(PARENT_DIR, "data", "results","FCM","fcm_predictions.json")
 
     # Load predictions
     with open(RESULTS_PATH, "r") as f:
