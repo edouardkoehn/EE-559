@@ -28,7 +28,7 @@ poetry run pre-commit install
 poetry env info
 ```
 ### 2) Set-up the dataset
-- download the dataset from the following adress: [MMHS150K dataset](https://drive.google.com/file/d/1S9mMhZFkntNnYdO-1dZXwF_8XIiFcmlF/view) and save it under ```data/```
+- download the dataset from the following adress: [MMHS150K dataset](https://drive.google.com/file/d/1hdbNEup0gYTuOgmy6nXow43YxDdAxxW1/view?usp=sharing) and save it under ```data/```
 - Preprocess the dataset using the following commmand:
 ```bash
 python src/reformat_data.py
