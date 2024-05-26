@@ -1,3 +1,5 @@
+# The following code is inspired by practice exercise 5
+
 import pandas as pd
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
@@ -87,25 +89,8 @@ for epoch in range(num_epochs):
     for batch in train_dataloader:
         batch.pop("index")  # remove 'index' from batch
         batch = {k: v.to(device) for k, v in batch.items()}
-        # **kwargs is a common idiom to allow an arbitrary number of arguments to functions
-        # The **kwargs will give you all keyword arguments as a dictionary
-        # https://stackoverflow.com/questions/36901/what-does-double-star-asterisk-and-star-asterisk-do-for-parameters
-        #
 
         outputs = model(**batch)
-        # Note that Transformers models all have a default task-relevant loss function,
-        # so you don’t need to specify one unless you want to
-
-        # get the loss form the outputs
-        # in this example, the outputs are instances of subclasses of ModelOutput
-        # https://huggingface.co/transformers/v4.3.0/main_classes/output.html
-        # Those are data structures containing all the information returned by
-        # the model, but that can also be used as tuples or dictionaries.
-
-        # the outputs object has a loss and logits attribute
-        # You can access each attribute as you would usually do,
-        # and if that attribute has not been returned by the model, you will get None.
-        # for instance, outputs.loss is the loss computed by the model
 
         loss = outputs.loss
 
